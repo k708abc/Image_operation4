@@ -4,21 +4,42 @@ import os
 from spym.io import rhksm4
 from PIL import Image
 import cv2
+import glob
 
-class Reading:
-    def get_image_values(self, data_path, channel_type):
-        data_type = os.path.splitext(data_path)
-        read_type = 0
-        if data_type[1] == ".SM4":
-            data, scan_params = self.sm4_getdata(data_path, channel_type)
-            read_type = 1
-        elif data_type[1] == ".bmp":
-            data, scan_params = self.bmp_getdata(data_path)
-            read_type = 2
-        elif data_type[1] == ".txt":
-            data, scan_params = self.txt_getdata(data_path)
-            read_type = 3
-        return data, scan_params, read_type
+class ImageList:
+    dir_name = None
+    images = None
+    types = None
+
+    def formlist(self):
+        image_list = [os.path.basename(pathname) for pathname in glob.glob(self.dir_name + "\*")]
+        self.images = []
+        self.types = []
+        for file in image_list:
+            data_path = self.dir_name + "\\" + file
+            data_type = os.path.splitext(data_path)
+            if data_type[1] == ".bmp":
+                self.images.append(file)
+                self.types.append(["bmp"])
+            elif data_type[1] == ".txt":
+                check = self.check_text(file)
+                if check:
+                    self.images.append(file)
+                    self.types.append(["txt"])
+            elif data_type[1] == ".SM4":
+                self.images.append(file)
+                self.types.append(self.datatypes(data_path))
+            else:
+                pass
+
+    def check_text(self, data_path):
+        with open(data_path) as f:
+            lines = f.readlines()
+            for line in lines:
+                values = line.split()
+                if "Data:" in values:
+                    return True
+        return False
 
     def datatypes(self, data_path):
         sm4data = rhksm4.load(data_path)
@@ -34,73 +55,6 @@ class Reading:
             except:
                 break
         return data_type_list
-
-    def sm4_getdata(self, data_path, data_type):
-        sm4data_set = rhksm4.load(data_path)
-        sm4data_im = sm4data_set[data_type]
-        image_data = sm4data_im.data
-        image_data = image_data.astype(np.float32)
-        scan_params = [
-            -round(
-                sm4data_im.attrs["RHK_Xscale"]
-                * sm4data_im.attrs["RHK_Xsize"]
-                * 1000000000,
-                1,
-            ),
-            -round(
-                sm4data_im.attrs["RHK_Yscale"]
-                * sm4data_im.attrs["RHK_Ysize"]
-                * 1000000000,
-                1,
-            ),
-            sm4data_im.attrs["RHK_Bias"],
-            np.max(image_data),
-            np.min(image_data),
-        ]
-        return image_data, scan_params
-
-    def bmp_getdata(self, data_path):
-        bmpdata_im = np.array(Image.open(data_path).convert("L"), dtype=np.float32)
-        scan_params = [
-            30,
-            round(30 / bmpdata_im.shape[1] * bmpdata_im.shape[0], 2),
-            0,
-            np.max(bmpdata_im),
-            np.min(bmpdata_im),
-        ]
-        return bmpdata_im, scan_params
-
-    def txt_getdata(self, data_path):
-        with open(data_path) as f:
-            lines = f.readlines()
-            read_check = False
-            text_data = []
-            for line in lines:
-                values = line.split()
-                if "Peaks:" in values:
-                    read_check = False
-                if read_check is True:
-                    text_data.append([])
-                    for val in values:
-                        if val == "\n":
-                            pass
-                        else:
-                            text_data[-1].append(float(val))
-
-                if "Data:" in values:
-                    read_check = True
-
-                if "Current_size_X:" in values:
-                    xsize = float(values[1])
-                if "Current_size_Y:" in values:
-                    ysize = float(values[1])
-                if "STM_bias:" in values:
-                    bias = float(values[1]) / 1000
-        data_np = np.array(text_data, dtype=np.float32)
-        if read_check:
-            return data_np, [xsize, ysize, bias, np.max(data_np), np.min(data_np)]
-        else:
-            return False, False
 
 
 class MyImage:
@@ -139,9 +93,9 @@ class MyImage:
         if data_type[1] == ".SM4":
             data, scan_params = self.sm4_getdata()
         elif data_type[1] == ".bmp":
-            data, scan_params = self.bmp_getdata(self.data_path)
+            data, scan_params = self.bmp_getdata()
         elif data_type[1] == ".txt":
-            data, scan_params = self.txt_getdata(self.data_path)
+            data, scan_params = self.txt_getdata()
         return data, scan_params
     
 
@@ -207,8 +161,6 @@ class MyImage:
             return data_np, [xsize, ysize, bias]
         else:
             return False, False
-
-
 
     def show_image(self):
         self.contrast_adjust()

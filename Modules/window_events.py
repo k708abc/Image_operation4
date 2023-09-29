@@ -7,65 +7,56 @@ from tkinter import filedialog
 import pathlib
 
 class Events:
+    def images_update(self, dir_name):
+        self.image_list.dir_name = dir_name
+        self.image_list.formlist()
+        self.choice["values"] = self.image_list.images
+        if len(self.image_list.images) > 0:
+            self.choice.current(0)
+            self.button_imopen["state"] = tk.NORMAL
+            self.imtype_choice["values"] = self.image_list.types[0]
+            self.imtype_choice.current(0)
+        else:
+            self.button_imopen["state"] = tk.DISABLED
+
+    def record_fol_function(self):
+        if self.rec_fol:
+            self.dir_name_rec = self.dir_name
+            self.rec_fol_name.delete(0, tk.END)
+            self.rec_fol_name.insert(tk.END, self.dir_name_rec)
+
     def fol_choice_clicked(self):
         abs_pass = pathlib.Path(filedialog.askdirectory(initialdir=self.dir_name))
         if abs_pass == pathlib.Path("."):
             return
-        self.dir_name = os.path.relpath(abs_pass, self.init_dir)
+        self.images_update(os.path.relpath(abs_pass, self.init_dir))
         self.fol_name.delete(0, tk.END)
         self.fol_name.insert(tk.END, self.dir_name)
         self.record_fol_function()
-        self.reflesh_image_list()
         self.master.update()
 
     def choice_selected(self, event):
-        self.data_path = self.dir_name + "\\" + self.choice.get()
-        self.imtype_list = self.get_datatypes(self.data_path)
         self.button_imopen["state"] = tk.NORMAL
-        self.imtype_choice["values"] = self.imtype_list
+        self.imtype_choice["values"] = self.image_list.types[self.choice.current()]
         self.imtype_choice.current(0)
         self.master.update()
 
     def image_open_clicked(self):
-        if self.image_check():
-            if self.real_image.open_bool is False:
-                self.fft_button["state"] = tk.NORMAL
-                self.record_button["state"] = tk.NORMAL
-                self.drift_button["state"] = tk.NORMAL
-            self.image_open()
-            # self.run_process()
-            self.real_image.show_image()
+        if self.real_image.open_bool is False:
+            self.fft_button["state"] = tk.NORMAL
+            self.record_button["state"] = tk.NORMAL
+            self.drift_button["state"] = tk.NORMAL
+        self.image_open()
+        # self.run_process()
+        self.real_image.show_image()
 
-    def image_check(self):
-        data_path_check = self.dir_name + "\\" + self.choice.get()
-        channel_type_check = self.imtype_choice.current()
-        data_type = os.path.splitext(data_path_check)
-        if data_type[1] in [".SM4", ".bmp"]:
-            self.data_path_op = data_path_check
-            self.channel_type_op = channel_type_check
-            return True
-        elif data_type[1] == ".txt":
-            data, _ = self.txt_getdata(data_path_check)
-            if data is False:
-                return False
-            else:
-                self.data_path_op = data_path_check
-                self.channel_type_op = channel_type_check
-                return True
-        else:
-            return False
-        
+
     def image_open(self):
-        self.real_image.data_path = self.data_path_op
-        self.real_image.channel_name = self.channel_type_op
+        self.real_image.data_path = self.image_list.dir_name + "\\" + self.choice.get()
+        self.real_image.channel_name = self.imtype_choice.current()
         self.real_image.read_image()
         #self.process_function()
         #self.update_after_show()
-
-
-
-
-
 
 
     def rec_fol_choice_clicked(self):

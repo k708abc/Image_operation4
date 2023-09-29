@@ -34,7 +34,7 @@ class Window(ttk.Frame):
         self.frame_image_choice.pack()
 
     def create_widgets_choice(self):
-        self.image_list = self.read_image_list(self.dir_name)
+
         self.fol_choice_text = ttk.Label(self.frame_image_choice, text="Folder")
         self.fol_name = ttk.Entry(self.frame_image_choice, width=20)
         self.button_folchoice = tk.Button(
@@ -48,18 +48,17 @@ class Window(ttk.Frame):
         self.choice = ttk.Combobox(
             self.frame_image_choice,
             textvariable=self.var_images,
-            values=self.image_list,
+            values=[],
             width=57,
         )
         self.choice.bind("<<ComboboxSelected>>", self.choice_selected)
         self.choice_text = ttk.Label(self.frame_image_choice, text="Image")
         #
-        self.imtype_list = []
         self.var_imtypes = tk.StringVar()
         self.imtype_choice = ttk.Combobox(
             self.frame_image_choice,
             textvariable=self.var_imtypes,
-            values=self.imtype_list,
+            values=[],
             width=57,
         )
         self.imtype_text = ttk.Label(self.frame_image_choice, text="Image type")
@@ -70,6 +69,7 @@ class Window(ttk.Frame):
             command=self.image_open_clicked,
             width=10,
         )
+        self.images_update(self.dir_name)
 
     def create_frame_contrast(self):
         self.frame_contrast = ttk.Frame()
