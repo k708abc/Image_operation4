@@ -63,6 +63,7 @@ class ImageList:
 
 class MyImage:
     image_or = None
+    image_prev = None
     image_mod = None
     image_cad = None
     image_show = None

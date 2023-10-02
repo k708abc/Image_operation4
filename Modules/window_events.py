@@ -5,6 +5,8 @@ import numpy as np
 import os
 from tkinter import filedialog
 import pathlib
+from Modules.process_classes import Smoothing, Median
+
 
 class Events:
     def images_update(self, dir_name):
@@ -47,16 +49,16 @@ class Events:
             self.record_button["state"] = tk.NORMAL
             self.drift_button["state"] = tk.NORMAL
         self.image_open()
+        self.processes[0].image = np.copy(self.real_image.image_or)
         # self.run_process()
         self.real_image.show_image()
-
 
     def image_open(self):
         self.real_image.data_path = self.image_list.dir_name + "\\" + self.choice.get()
         self.real_image.channel_name = self.imtype_choice.current()
         self.real_image.read_image()
-        #self.process_function()
-        #self.update_after_show()
+        # self.process_function()
+        # self.update_after_show()
 
     def cb_color_selected(self, event):
         if self.real_shown:
@@ -103,7 +105,6 @@ class Events:
         self.upper_val.set(255)
         self.lower_val.set(0)
 
-
     def cb_line_selected(self, event):
         if self.real_shown:
             self.real_image.line_method = self.method_line_cb.get()
@@ -112,24 +113,51 @@ class Events:
             self.FFT_image.line_method = self.method_line_cb.get()
             self.FFT_image.show_image()
 
-
-
-
-
-
-    def rec_fol_choice_clicked(self):
-        pass
-
-
-
-
-
+    def smooth_process(self, process_list):
+        if process_list[-1].name == "Smoothing":
+            process_list[-1].range = float(self.smooth_entry.get())
+        else:
+            self.val_reset(process_list[-1].name)
+            val = Smoothing()
+            val.range = float(self.smooth_entry.get())
+            val.image = process_list[-1].run()
+            process_list.append(val)
+        return process_list
 
     def smooth_change(self, event):
-        pass
+        if self.smooth_entry.get() == "":
+            self.smooth_entry.insert(tk.END, "0")
+        if self.real_shown:
+            self.processes = self.smooth_process(self.processes)
+            self.real_image.image_mod = np.copy(self.processes[-1].run())
+            self.real_image.show_image()
+        else:
+            self.processes_FFT = self.smooth_process(self.processes_FFT)
+            self.FFT_image.image_mod = np.copy(self.processes[-1].run())
+            self.FFT_image.show_image()
+
+    def median_process(self, process_list):
+        if process_list[-1].name == "Median":
+            process_list[-1].range = float(self.median_entry.get())
+        else:
+            self.val_reset(process_list[-1].name)
+            val = Median()
+            val.range = float(self.median_entry.get())
+            val.image = process_list[-1].run()
+            process_list.append(val)
+        return process_list
 
     def median_change(self, event):
-        pass
+        if self.median_entry.get() == "":
+            self.median_entry.insert(tk.END, "0")
+        if self.real_shown:
+            self.processes = self.median_process(self.processes)
+            self.real_image.image_mod = self.processes[-1].run()
+            self.real_image.show_image()
+        else:
+            self.processes_FFT = self.median_process(self.processes_FFT)
+            self.FFT_image.image_mod = self.processes[-1].run()
+            self.FFT_image.show_image()
 
     def drift_check_func(self):
         pass
@@ -188,7 +216,6 @@ class Events:
     def cb_window_selected(self, event):
         pass
 
-
     def cb_symmetrize_selected(self, event):
         pass
 
@@ -214,7 +241,11 @@ class Events:
         pass
 
     def process_window(self):
-        pass
+        if self.manage_bool is False:
+            self.manage_process()
 
     def rec_text(self):
+        pass
+
+    def rec_fol_choice_clicked(self):
         pass
