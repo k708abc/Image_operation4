@@ -58,29 +58,72 @@ class Events:
         #self.process_function()
         #self.update_after_show()
 
+    def cb_color_selected(self, event):
+        if self.real_shown:
+            self.real_image.color_num = self.colormap_table.index(self.cb_color.get())
+            self.real_image.show_image()
+        else:
+            self.FFT_image.color_num = self.colormap_table.index(self.cb_color.get())
+            self.FFT_image.show_image()
+
+    def upper_value_change(self, *args):
+        if self.real_shown:
+            self.real_image.upper = int(self.upper_val.get())
+            self.real_image.show_image()
+        else:
+            self.FFT_image.upper = int(self.upper_val.get())
+            self.FFT_image.show_image()
+
+    def lower_value_change(self, *args):
+        if self.real_shown:
+            self.real_image.lower = int(self.lower_val.get())
+            self.real_image.show_image()
+        else:
+            self.FFT_image.lower = int(self.lower_val.get())
+            self.FFT_image.show_image()
+
+    def default_function(self):
+        self.upper_val.set(255)
+        self.lower_val.set(0)
+        if self.real_shown:
+            self.real_image.back_default()
+            self.real_image.show_image()
+        else:
+            self.FFT_image.back_default()
+            self.FFT_image.show_image()
+
+    def auto_set_function(self):
+        pass
+
+    def set_default_function(self):
+        if self.real_shown:
+            self.real_image.set_default()
+        else:
+            self.FFT_image.set_default()
+        self.upper_val.set(255)
+        self.lower_val.set(0)
+
+
+    def cb_line_selected(self, event):
+        if self.real_shown:
+            self.real_image.line_method = self.method_line_cb.get()
+            self.real_image.show_image()
+        else:
+            self.FFT_image.line_method = self.method_line_cb.get()
+            self.FFT_image.show_image()
+
+
+
+
+
 
     def rec_fol_choice_clicked(self):
         pass
 
 
 
-    def upper_value_change(self, *args):
-        pass
 
-    def lower_value_change(self, *args):
-        pass
 
-    def default_function(self):
-        pass
-
-    def auto_set_function(self):
-        pass
-
-    def set_default_function(self):
-        pass
-
-    def cb_color_selected(self, event):
-        pass
 
     def smooth_change(self, event):
         pass
@@ -145,8 +188,6 @@ class Events:
     def cb_window_selected(self, event):
         pass
 
-    def cb_line_selected(self, event):
-        pass
 
     def cb_symmetrize_selected(self, event):
         pass

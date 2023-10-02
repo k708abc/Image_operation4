@@ -17,6 +17,7 @@ class Functions:
         self.dir_name = os.getcwd()
         self.dir_name_rec = os.getcwd()
         self.rec_fol = True
+        self.real_shown = True
 
 
 

@@ -175,6 +175,7 @@ class Window(ttk.Frame):
 
         self.cb_color.bind("<<ComboboxSelected>>", self.cb_color_selected)
         self.cb_color_text = ttk.Label(self.frame_cb, text="Color")
+        self.cb_color.current(0)
         #
         self.smooth_entry = ttk.Entry(self.frame_cb, width=5)
         self.smooth_entry.insert(tk.END, "0")

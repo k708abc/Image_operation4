@@ -5,6 +5,8 @@ from spym.io import rhksm4
 from PIL import Image
 import cv2
 import glob
+import math
+
 
 class ImageList:
     dir_name = None
@@ -12,7 +14,9 @@ class ImageList:
     types = None
 
     def formlist(self):
-        image_list = [os.path.basename(pathname) for pathname in glob.glob(self.dir_name + "\*")]
+        image_list = [
+            os.path.basename(pathname) for pathname in glob.glob(self.dir_name + "\*")
+        ]
         self.images = []
         self.types = []
         for file in image_list:
@@ -71,8 +75,10 @@ class MyImage:
     x_mag = 1
     y_mag = 1
     open_bool = False
+    max_contrast = 255
     min_contrast = 0
-    max_contrast = 100
+    color_num = 0
+    line_method = None
 
     def initialize(self):
         self.upper = 255
@@ -85,8 +91,8 @@ class MyImage:
         self.y_or, self.x_or = self.image_or.shape[:2]
         self.open_bool = True
         self.image_mod = np.copy(self.image_or)
-        self.min_contrast = np.min(self.image_mod)
         self.max_contrast = np.max(self.image_mod)
+        self.min_contrast = np.min(self.image_mod)
 
     def get_image_values(self):
         data_type = os.path.splitext(self.data_path)
@@ -97,7 +103,6 @@ class MyImage:
         elif data_type[1] == ".txt":
             data, scan_params = self.txt_getdata()
         return data, scan_params
-    
 
     def sm4_getdata(self):
         sm4data_set = rhksm4.load(self.data_path)
@@ -163,34 +168,33 @@ class MyImage:
             return False, False
 
     def show_image(self):
-        self.contrast_adjust()
-        self.contrast_change()
-        #self.image_cad = self.draw_line(self.image_cad, self.method_line_cb.get())
-        #self.image_cad = self.color_change(self.image_cad, self.colormap_table.index(self.cb_color.get()))
-        #self.size_update()
-        #self.pix_update()
-        cv2.imshow("Target", self.image_show)
+        if self.open_bool:
+            self.contrast_adjust()
+            self.contrast_change()
+            self.draw_line()
+            self.color_change()
+            # self.size_update()
+            # self.pix_update()
+            cv2.imshow("Target", self.image_show)
 
     def contrast_adjust(self):
-        image = (self.image_mod - self.min_contrast) / (self.max_contrast - self.min_contrast) * 255
-        self.image_cad =  image.astype(np.uint8)
+        image = (
+            (self.image_mod - self.min_contrast)
+            / (self.max_contrast - self.min_contrast)
+            * 255
+        )
+        image[image > 255] = 255
+        image[image < 0] = 0
+        self.image_cad = image.astype(np.uint8)
 
     def contrast_change(self):
-        upper = (
-            self.min_contrast
-            + (self.max_contrast - self.min_contrast) * int(self.upper) / 255
-        )
-        lower = (
-            self.min_contrast
-            + (self.max_contrast - self.min_contrast) * int(self.lower) / 255
-        )
-        LUT = self.get_LUT(upper, lower)
-        self.image_show = cv2.LUT(self.image_cad, LUT)
+        LUT = self.get_LUT()
+        self.image_cad = cv2.LUT(self.image_cad, LUT)
 
-    def get_LUT(self, maximum, minimum):
+    def get_LUT(self):
         LUT = np.zeros((256, 1), dtype="uint8")
-        maximum = int(maximum)
-        minimum = int(minimum)
+        maximum = int(self.upper)
+        minimum = int(self.lower)
         if maximum == minimum:
             for i in range(-50, 301):
                 if i < maximum:
@@ -232,9 +236,73 @@ class MyImage:
                         LUT[i][0] = 0
         return LUT
 
+    def draw_line(self):
+        height, width = self.image_cad.shape[:2]
+        color_line = 255
+        if self.line_method == None:
+            pass
+        elif self.line_method == "XY":
+            cv2.line(
+                self.image_cad,
+                (0, int(height / 2)),
+                (int(width), int(height / 2)),
+                color_line,
+                1,
+            )
+            cv2.line(
+                self.image_cad,
+                (int(width / 2), 0),
+                (int(width / 2), int(height)),
+                color_line,
+                1,
+            )
+        elif self.line_method == "X":
+            cv2.line(
+                self.image_cad,
+                (0, int(height / 2)),
+                (int(width), int(height / 2)),
+                color_line,
+                1,
+            )
+
+        elif self.line_method == "Six_fold":
+            cv2.line(
+                self.image_cad,
+                (0, int(height / 2)),
+                (int(width), int(height / 2)),
+                color_line,
+                1,
+            )
+            cv2.line(
+                self.image_cad,
+                (int(width / 2 - width / 2 / math.sqrt(3)), 0),
+                (int(width / 2 + width / 2 / math.sqrt(3)), height),
+                color_line,
+                1,
+            )
+            cv2.line(
+                self.image_cad,
+                (int(width / 2 + width / 2 / math.sqrt(3)), 0),
+                (int(width / 2 - width / 2 / math.sqrt(3)), height),
+                color_line,
+                1,
+            )
+
     def color_change(self):
-        if color_num == 0:
-            modified_image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+        if self.color_num == 0:
+            self.image_show = cv2.cvtColor(self.image_cad, cv2.COLOR_GRAY2BGR)
         else:
-            modified_image = cv2.applyColorMap(image, color_num - 1)
-        return modified_image
+            self.image_show = cv2.applyColorMap(self.image_cad, self.color_num - 1)
+
+    def set_default(self):
+        if self.open_bool:
+            self.max_contrast, self.min_contrast = (
+                self.max_contrast - self.min_contrast
+            ) / 255 * self.upper + self.min_contrast, (
+                self.max_contrast - self.min_contrast
+            ) / 255 * self.lower + self.min_contrast
+
+    def back_default(self):
+        if self.open_bool:
+            self.max_contrast = np.max(self.image_mod)
+            self.min_contrast = np.min(self.image_mod)
