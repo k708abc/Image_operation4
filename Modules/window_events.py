@@ -5,7 +5,23 @@ import numpy as np
 import os
 from tkinter import filedialog
 import pathlib
-from Modules.process_classes import Smoothing, Median
+from Modules.process_classes import (
+    Smoothing,
+    Median,
+    Drift,
+    Rescale,
+    Cut,
+    Intensity,
+    Gamma,
+    Edge,
+    Square,
+    Odd,
+    Average,
+    Mirror,
+    Ignore_neg,
+)
+from Modules.drift_fix_windows import drift_two_images
+from Modules.drift_fix_fft import drift_fft
 
 
 class Events:
@@ -133,8 +149,10 @@ class Events:
             self.real_image.show_image()
         else:
             self.processes_FFT = self.smooth_process(self.processes_FFT)
-            self.FFT_image.image_mod = np.copy(self.processes[-1].run())
+            self.FFT_image.image_mod = self.processes_FFT[-1].run()
             self.FFT_image.show_image()
+        if self.manage_bool:
+            self.update_process_w()
 
     def median_process(self, process_list):
         if process_list[-1].name == "Median":
@@ -156,53 +174,259 @@ class Events:
             self.real_image.show_image()
         else:
             self.processes_FFT = self.median_process(self.processes_FFT)
-            self.FFT_image.image_mod = self.processes[-1].run()
+            self.FFT_image.image_mod = self.processes_FFT[-1].run()
             self.FFT_image.show_image()
+        if self.manage_bool:
+            self.update_process_w()
 
-    def drift_check_func(self):
-        pass
+    def drift_process(self, process_list):
+        if process_list[-1].name == "Drift":
+            process_list[-1].x = float(self.drift_dx.get())
+            process_list[-1].y = float(self.drift_dx.get())
+        else:
+            self.val_reset(process_list[-1].name)
+            val = Drift()
+            val.x = float(self.drift_dx.get())
+            val.y = float(self.drift_dx.get())
+            val.image = process_list[-1].run()
+            process_list.append(val)
+        return process_list
 
     def drift_val_change(self, event):
-        pass
+        if self.real_shown:
+            self.processes = self.drift_process(self.processes)
+            self.real_image.image_mod = self.processes[-1].run()
+            self.real_image.show_image()
+        else:
+            self.processes_FFT = self.dfift_process(self.processes_FFT)
+            self.FFT_image.image_mod = self.processes_FFT[-1].run()
+            self.FFT_image.show_image()
 
     def drift_function(self):
-        pass
+        if self.drift_cb.current() == 0:
+            # two images
+            drift_two_images(self)
+        elif self.drift_cb.current() == 1:
+            # fft
+            drift_fft(self)
+
+    def rescale_process(self, process_list):
+        if process_list[-1].name == "Rescale":
+            process_list[-1].all = float(self.rescale_all.get())
+            process_list[-1].x = float(self.rescale_x.get())
+            process_list[-1].y = float(self.rescale_y.get())
+        else:
+            self.val_reset(process_list[-1].name)
+            val = Rescale()
+            val.all = float(self.rescale_all.get())
+            val.x = float(self.rescale_x.get())
+            val.y = float(self.rescale_y.get())
+            val.image = process_list[-1].run()
+            process_list.append(val)
+        return process_list
 
     def rescale(self, event):
-        pass
+        if self.real_shown:
+            self.processes = self.rescale_process(self.processes)
+            self.real_image.image_mod = self.processes[-1].run()
+            self.real_image.show_image()
+        else:
+            self.processes_FFT = self.rescale_process(self.processes_FFT)
+            self.FFT_image.image_mod = self.processes_FFT[-1].run()
+            self.FFT_image.show_image()
+
+    def cut_process(self, process_list):
+        if process_list[-1].name == "Cut":
+            process_list[-1].ratio = float(self.cut_entry.get())
+        else:
+            self.val_reset(process_list[-1].name)
+            val = Cut()
+            val.ratio = float(self.cut_entry.get())
+            val.image = process_list[-1].run()
+            process_list.append(val)
+        return process_list
 
     def cut_image(self, event):
-        pass
+        if self.real_shown:
+            self.processes = self.cut_process(self.processes)
+            self.real_image.image_mod = self.processes[-1].run()
+            self.real_image.show_image()
+        else:
+            self.processes_FFT = self.cut_process(self.processes_FFT)
+            self.FFT_image.image_mod = self.processes_FFT[-1].run()
+            self.FFT_image.show_image()
+
+    def int_process(self, process_list):
+        if process_list[-1].name == "Intensity":
+            process_list[-1].method = self.int_cb.get()
+        else:
+            self.val_reset(process_list[-1].name)
+            val = Intensity()
+            val.method = self.int_cb.get()
+            val.image = process_list[-1].run()
+            process_list.append(val)
+        return process_list
 
     def int_cb_selected(self, event):
-        pass
+        if self.real_shown:
+            self.processes = self.int_process(self.processes)
+            self.real_image.image_mod = self.processes[-1].run()
+            self.real_image.show_image()
+        else:
+            self.processes_FFT = self.int_process(self.processes_FFT)
+            self.FFT_image.image_mod = self.processes_FFT[-1].run()
+            self.FFT_image.show_image()
+
+    def gamma_process(self, process_list):
+        if process_list[-1].name == "Gamma":
+            process_list[-1].val = float(self.int_entry.get())
+        else:
+            self.val_reset(process_list[-1].name)
+            val = Gamma()
+            val.val = float(self.int_entry.get())
+            val.image = process_list[-1].run()
+            process_list.append(val)
+        return process_list
 
     def int_gamma_change(self, event):
-        pass
+        if self.real_shown:
+            self.processes = self.gamma_process(self.processes)
+            self.real_image.image_mod = self.processes[-1].run()
+            self.real_image.show_image()
+        else:
+            self.processes_FFT = self.gamma_process(self.processes_FFT)
+            self.FFT_image.image_mod = self.processes_FFT[-1].run()
+            self.FFT_image.show_image()
 
-    def edge_cb_selected(self, event):
-        pass
+    def edge_process(self, process_list):
+        if process_list[-1].name == "Edge":
+            process_list[-1].method = self.edge_cb.get()
+            process_list[-1].val = self.edge_entry.get()
+            process_list[-1].mul_or = self.mulor_bool.get()
+        else:
+            self.val_reset(process_list[-1].name)
+            val = Edge()
+            val.method = self.edge_cb.get()
+            val.val = self.edge_entry.get()
+            val.mul_or = self.mulor_bool.get()
+            val.image = process_list[-1].run()
+            process_list.append(val)
+        return process_list
 
-    def edge_range_change(self, event):
-        pass
+    def edge_change(self, event):
+        if self.real_shown:
+            self.processes = self.edge_process(self.processes)
+            self.real_image.image_mod = self.processes[-1].run()
+            self.real_image.show_image()
+        else:
+            self.processes_FFT = self.edge_process(self.processes_FFT)
+            self.FFT_image.image_mod = self.processes_FFT[-1].run()
+            self.FFT_image.show_image()
 
-    def mulor_check_change(self):
-        pass
+    def square_process(self, process_list):
+        if process_list[-1].name == "Squarize":
+            process_list[-1].on = self.square_bool.get()
+        else:
+            self.val_reset(process_list[-1].name)
+            val = Square()
+            val.on = self.square_bool.get()
+            val.image = process_list[-1].run()
+            process_list.append(val)
+        return process_list
 
     def square_image(self):
-        pass
+        if self.real_shown:
+            self.processes = self.square_process(self.processes)
+            self.real_image.image_mod = self.processes[-1].run()
+            self.real_image.show_image()
+        else:
+            self.processes_FFT = self.square_process(self.processes_FFT)
+            self.FFT_image.image_mod = self.processes_FFT[-1].run()
+            self.FFT_image.show_image()
+
+    def odd_process(self, process_list):
+        if process_list[-1].name == "Oddize":
+            process_list[-1].on = self.oddize_bool.get()
+        else:
+            self.val_reset(process_list[-1].name)
+            val = Odd()
+            val.on = self.oddize_bool.get()
+            val.image = process_list[-1].run()
+            process_list.append(val)
+        return process_list
 
     def oddize_image(self):
-        pass
+        if self.real_shown:
+            self.processes = self.odd_process(self.processes)
+            self.real_image.image_mod = self.processes[-1].run()
+            self.real_image.show_image()
+        else:
+            self.processes_FFT = self.odd_process(self.processes_FFT)
+            self.FFT_image.image_mod = self.processes_FFT[-1].run()
+            self.FFT_image.show_image()
+
+    def ave_process(self, process_list):
+        if process_list[-1].name == "Ave. sub.":
+            process_list[-1].on = self.average_bool.get()
+        else:
+            self.val_reset(process_list[-1].name)
+            val = Average()
+            val.on = self.average_bool.get()
+            val.image = process_list[-1].run()
+            process_list.append(val)
+        return process_list
 
     def average_image(self):
-        pass
+        if self.real_shown:
+            self.processes = self.ave_process(self.processes)
+            self.real_image.image_mod = self.processes[-1].run()
+            self.real_image.show_image()
+        else:
+            self.processes_FFT = self.ave_process(self.processes_FFT)
+            self.FFT_image.image_mod = self.processes_FFT[-1].run()
+            self.FFT_image.show_image()
+
+    def mirror_process(self, process_list):
+        if process_list[-1].name == "mirror":
+            process_list[-1].on = self.mirror_bool.get()
+        else:
+            self.val_reset(process_list[-1].name)
+            val = Mirror()
+            val.on = self.mirror_bool.get()
+            val.image = process_list[-1].run()
+            process_list.append(val)
+        return process_list
 
     def mirror_image(self):
-        pass
+        if self.real_shown:
+            self.processes = self.mirror_process(self.processes)
+            self.real_image.image_mod = self.processes[-1].run()
+            self.real_image.show_image()
+        else:
+            self.processes_FFT = self.mirror_process(self.processes_FFT)
+            self.FFT_image.image_mod = self.processes_FFT[-1].run()
+            self.FFT_image.show_image()
+
+    def igneg_process(self, process_list):
+        if process_list[-1].name == "ignore neg.":
+            process_list[-1].on = self.ignore_neg_bool.get()
+        else:
+            self.val_reset(process_list[-1].name)
+            val = Ignore_neg()
+            val.on = self.ignore_neg_bool.get()
+            val.image = process_list[-1].run()
+            process_list.append(val)
+        return process_list
 
     def ignore_neg_image(self):
-        pass
+        if self.real_shown:
+            self.processes = self.igneg_process(self.processes)
+            self.real_image.image_mod = self.processes[-1].run()
+            self.real_image.show_image()
+        else:
+            self.processes_FFT = self.igneg_process(self.processes_FFT)
+            self.FFT_image.image_mod = self.processes_FFT[-1].run()
+            self.FFT_image.show_image()
 
     def original_size_changed(self, event):
         self.current_size_update()

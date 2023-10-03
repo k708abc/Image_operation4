@@ -26,7 +26,6 @@ class Window(ttk.Frame):
         self.create_frame_buttons()
         self.master = master
 
-
     def create_frame_image_choise(self):
         self.frame_image_choice = ttk.Frame()
         self.create_widgets_choice()
@@ -34,7 +33,6 @@ class Window(ttk.Frame):
         self.frame_image_choice.pack()
 
     def create_widgets_choice(self):
-
         self.fol_choice_text = ttk.Label(self.frame_image_choice, text="Folder")
         self.fol_name = ttk.Entry(self.frame_image_choice, width=20)
         self.button_folchoice = tk.Button(
@@ -196,16 +194,6 @@ class Window(ttk.Frame):
         self.frame_drift.pack()
 
     def create_widgets_drift(self):
-        self.drift_bool = tk.BooleanVar()
-        self.drift_bool.set(False)
-        self.drift_check = tk.Checkbutton(
-            self.frame_drift,
-            variable=self.drift_bool,
-            text="Fix drift",
-            command=self.drift_check_func,
-        )
-
-        #
         self.drift_dx_text = ttk.Label(self.frame_drift, text="v (nm/scan)")
         self.drift_dx = ttk.Entry(self.frame_drift, width=7)
         self.drift_dx.insert(tk.END, "0")
@@ -306,13 +294,13 @@ class Window(ttk.Frame):
             values=self.edge_methods,
         )
         self.edge_cb.current(0)
-        self.edge_cb.bind("<<ComboboxSelected>>", self.edge_cb_selected)
+        self.edge_cb.bind("<<ComboboxSelected>>", self.edge_change)
 
         self.edge_range = ttk.Label(self.frame_edge, text="constant")
 
         self.edge_entry = ttk.Entry(self.frame_edge, width=7)
         self.edge_entry.insert(tk.END, "3")
-        self.edge_entry.bind("<Return>", self.edge_range_change)
+        self.edge_entry.bind("<Return>", self.edge_change)
         #
         self.mulor_bool = tk.BooleanVar()
         self.mulor_bool.set(False)
@@ -320,7 +308,7 @@ class Window(ttk.Frame):
             self.frame_edge,
             variable=self.mulor_bool,
             text="x original",
-            command=self.mulor_check_change,
+            command=self.edge_change,
         )
 
     def create_frame_sym(self):

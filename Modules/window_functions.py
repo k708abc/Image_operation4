@@ -22,8 +22,7 @@ class Functions:
         self.real_shown = True
         self.processes = [ImOpen()]
         self.processes_FFT = [ImOpen()]
-        self.switch_list = []
-        self.switch_list_FFT = []
+
         self.FFT_params = []
         self.manage_bool = False
 

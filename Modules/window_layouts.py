@@ -40,7 +40,6 @@ class Layouts:
         self.cb_median_unit.grid(row=1, column=5, **self.padWE)
 
     def create_layout_drift(self):
-        self.drift_check.grid(row=0, column=0, **self.padWE)
         self.drift_dx_text.grid(row=0, column=1, **self.padWE)
         self.drift_dx.grid(row=0, column=2, **self.padWE)
         self.drift_dy_text.grid(row=0, column=3, **self.padWE)

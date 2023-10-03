@@ -102,82 +102,97 @@ class P_window:
     def button_function(self, text, bool, num):
         def inner_function():
             if bool.get():
-                bool.set(False)
-                text.set("OFF")
-                self.processes[num][-1] = False
-
-            else:
                 bool.set(True)
                 text.set("ON")
-                self.processes[num][-1] = True
-            self.switch_bool = True
+                self.processes[num].switch = True
+            else:
+                bool.set(False)
+                text.set("OFF")
+                self.processes[num].switch = False
 
         return inner_function
 
     def button_function_FFT(self, text, bool, num):
         def inner_function():
             if bool.get():
-                bool.set(False)
-                text.set("OFF")
-                self.processes_FFT[num][-1] = False
-            else:
                 bool.set(True)
                 text.set("ON")
                 self.processes_FFT[num][-1] = True
-            self.switch_bool = True
+            else:
+                bool.set(False)
+                text.set("OFF")
+                self.processes_FFT[num][-1] = False
 
         return inner_function
 
-    def create_widgets_datalist(self):
-        self.manage_init_setting()
-        self.check_list = []
-        self.check_list_FFT = []
-        self.process_manage = []
-        self.process_manage_FFT = []
-        color = "#FFCDE2"
-        real_text = tk.Label(
-            self.frame_list, width=10, text="Real image", background=color
-        )
-        real_text.grid(row=2, column=0, padx=0, pady=0, ipadx=0, ipady=0)
-        #
-        for i in range(len(self.processes)):
-            # color set
-            if i % 2 == 0:
+    def list_form(self, process, start_val, type):
+        check_list = []
+        var_list = []
+        switch_list = []
+        for i in range(1, len(process)):
+            var_list.append([])
+            if (i) % 2 == 0:
                 color = "#cdfff7"  # blue
             else:
                 color = "white"
-            # checkbox
             check_bln = tk.BooleanVar()
             check_bln.set(False)
-            c1 = tk.Checkbutton(
+            chk_btn = tk.Checkbutton(
                 self.frame_list,
                 variable=check_bln,
                 width=3,
                 text="",
                 background="white",
             )
-            c1.grid(row=i + 3, column=0, padx=0, pady=0, ipadx=0, ipady=0)
-            self.check_list.append(check_bln)
+            chk_btn.grid(
+                row=start_val + i + 1, column=0, padx=0, pady=0, ipadx=0, ipady=0
+            )
+            check_list.append(check_bln)
             # process name
             process_name = tk.Label(
-                self.frame_list, width=18, text=self.processes[i][0], background=color
+                self.frame_list, width=18, text=process[i].name, background=color
             )
-            process_name.grid(row=i + 3, column=1, padx=1, pady=0, ipadx=0, ipady=0)
+            process_name.grid(
+                row=start_val + i + 1, column=1, padx=1, pady=0, ipadx=0, ipady=0
+            )
+            #
+            clm = 2
+            for pro_name in process[i].params:
+                text = tk.Label(
+                    self.frame_list, width=6, text=pro_name, background=color
+                )
+                var = StringVar()
+                entry = tk.Entry(
+                    self.frame_list, width=5, background=color, textvariable=var
+                )
+                entry.insert(tk.END, process[i].getval(pro_name))
+                text.grid(
+                    row=start_val + i + 1, column=clm, padx=1, pady=0, ipadx=0, ipady=0
+                )
+                entry.grid(
+                    row=start_val + i + 1,
+                    column=clm + 1,
+                    padx=1,
+                    pady=0,
+                    ipadx=0,
+                    ipady=0,
+                )
+                clm += 2
+                var_list[-1].append(var)
 
             # on_off switch
             sw_bool = tk.BooleanVar()
             sw_text = tk.StringVar()
-            if type(self.processes[i][-1]) != bool:
+            if process[i].switch:
                 sw_bool.set(True)
                 sw_text.set("ON")
             else:
-                if self.processes[i][-1]:
-                    sw_bool.set(True)
-                    sw_text.set("ON")
-                else:
-                    sw_bool.set(False)
-                    sw_text.set("OFF")
-            func = self.button_function(sw_text, sw_bool, i)
+                sw_bool.set(False)
+                sw_text.set("OFF")
+            if type == "Real":
+                func = self.button_function(sw_text, sw_bool, i)
+            else:
+                func = self.button_function_FFT(sw_text, sw_bool, i)
             sw_button = tk.Button(
                 self.frame_list,
                 textvariable=sw_text,
@@ -186,17 +201,34 @@ class P_window:
             )
             sw_button.grid(row=i + 3, column=10, padx=1, pady=0, ipadx=0, ipady=0)
             #
-            process_temp = self.get_process_list(self.processes[i], color, i + 1)
-            process_temp.append(sw_bool)
-            self.process_manage.append(process_temp)
+            switch_list.append(sw_bool)
+        return check_list, var_list, switch_list
+
+    def create_widgets_datalist(self):
+        self.manage_init_setting()
+        self.check_list = []
+        self.check_list_FFT = []
+        self.var_list = []
+        self.var_list_FFT = []
+        self.swith_list = []
+        self.swith_list_FFT = []
+        color = "#FFCDE2"
+        real_text = tk.Label(
+            self.frame_list, width=10, text="Real image", background=color
+        )
+        real_text.grid(row=2, column=0, padx=0, pady=0, ipadx=0, ipady=0)
         #
+        list_num = 2
+        self.check_list, self.var_list, self.swith_list = self.list_form(
+            self.processes, list_num, "Real"
+        )
+        #
+        list_num += self.num_process_real + 4
         color = "#FFCDE2"
         FFT_text = tk.Label(
             self.frame_list, width=10, text="FFT image", background=color
         )
-        FFT_text.grid(
-            row=self.num_process_real + 3, column=0, padx=0, pady=0, ipadx=0, ipady=0
-        )
+        FFT_text.grid(row=list_num, column=0, padx=0, pady=0, ipadx=0, ipady=0)
         #
         if self.FFT_params != []:
             self.FFT_params_form = False
@@ -258,343 +290,11 @@ class P_window:
                 ipadx=0,
                 ipady=0,
             )
-        for i in range(len(self.processes_FFT)):
-            # color set
-            if i % 2 == 0:
-                color = "#cdfff7"  # blue
-            else:
-                color = "white"
-            # checkbox
-            check_bln = tk.BooleanVar()
-            check_bln.set(False)
-            c1 = tk.Checkbutton(
-                self.frame_list,
-                variable=check_bln,
-                width=3,
-                text="",
-                background="white",
-            )
-            c1.grid(
-                row=i + self.num_process_real + 4,
-                column=0,
-                padx=0,
-                pady=0,
-                ipadx=0,
-                ipady=0,
-            )
-            self.check_list_FFT.append(check_bln)
-            # image name
-            process_name = tk.Label(
-                self.frame_list,
-                width=18,
-                text=self.processes_FFT[i][0],
-                background=color,
-            )
-            process_name.grid(
-                row=i + self.num_process_real + 4,
-                column=1,
-                padx=1,
-                pady=0,
-                ipadx=0,
-                ipady=0,
-            )
-            #
-            sw_bool_FFT = tk.BooleanVar()
-            sw_text_FFT = tk.StringVar()
-            if self.processes_FFT[i][-1]:
-                sw_bool_FFT.set(True)
-                sw_text_FFT.set("ON")
-            else:
-                sw_bool_FFT.set(False)
-                sw_text_FFT.set("OFF")
-            func = self.button_function_FFT(sw_text_FFT, sw_bool_FFT, i)
-            sw_button_FFT = tk.Button(
-                self.frame_list,
-                textvariable=sw_text_FFT,
-                command=func,
-                width=3,
-            )
-            sw_button_FFT.grid(
-                row=i + self.num_process_real + 4,
-                column=10,
-                padx=1,
-                pady=0,
-                ipadx=0,
-                ipady=0,
-            )
-            process_temp = self.get_process_list(
-                self.processes_FFT[i], color, i + self.num_process_real + 2
-            )
-            process_temp.append(sw_bool_FFT)
-            self.process_manage_FFT.append(process_temp)
 
-    def get_process_list(self, process, color, num):
-        #
-        if process[0] == "smoothing":
-            smoothvar = StringVar()
-            smooth_entry = tk.Entry(
-                self.frame_list, width=8, background=color, textvariable=smoothvar
-            )
-            smooth_entry.insert(tk.END, process[1])
-            smooth_text = tk.Label(
-                self.frame_list, width=8, text="value", background=color
-            )
-            smooth_text.grid(row=num + 2, column=2, padx=1, pady=0, ipadx=0, ipady=0)
-            smooth_entry.grid(row=num + 2, column=3, padx=1, pady=0, ipadx=0, ipady=0)
-            return ["smoothing", smoothvar]
-
-        elif process[0] == "median":
-            medianvar = StringVar()
-            median_entry = tk.Entry(
-                self.frame_list, width=8, background=color, textvariable=medianvar
-            )
-            median_entry.insert(tk.END, process[1])
-            median_text = tk.Label(
-                self.frame_list, width=8, text="value", background=color
-            )
-            median_text.grid(row=num + 2, column=2, padx=1, pady=0, ipadx=0, ipady=0)
-            median_entry.grid(row=num + 2, column=3, padx=1, pady=0, ipadx=0, ipady=0)
-            return ["median", medianvar]
-
-        elif process[0] == "set_contrast":
-            upper_var = StringVar()
-            upper_entry = tk.Entry(
-                self.frame_list, width=8, background=color, textvariable=upper_var
-            )
-            upper_entry.insert(tk.END, process[1])
-            upper_text = tk.Label(
-                self.frame_list, width=8, text="Upper", background=color
-            )
-            #
-            lower_var = StringVar()
-            lower_entry = tk.Entry(
-                self.frame_list, width=8, background=color, textvariable=lower_var
-            )
-            lower_entry.insert(tk.END, process[2])
-            lower_text = tk.Label(
-                self.frame_list, width=8, text="Lower", background=color
-            )
-            #
-            upper_entry.grid(row=num + 2, column=3, padx=1, pady=0, ipadx=0, ipady=0)
-            upper_text.grid(row=num + 2, column=2, padx=1, pady=0, ipadx=0, ipady=0)
-            lower_entry.grid(row=num + 2, column=5, padx=1, pady=0, ipadx=0, ipady=0)
-            lower_text.grid(row=num + 2, column=4, padx=1, pady=0, ipadx=0, ipady=0)
-
-            return ["set_contrast", upper_var, lower_var]
-
-        elif process[0] == "drift":
-            driftx_var = StringVar()
-            driftx_entry = tk.Entry(
-                self.frame_list, width=8, background=color, textvariable=driftx_var
-            )
-            driftx_entry.insert(tk.END, process[1])
-            #
-            drifty_var = StringVar()
-            drifty_entry = tk.Entry(
-                self.frame_list, width=8, background=color, textvariable=drifty_var
-            )
-            drifty_entry.insert(tk.END, process[2])
-            #
-            driftx_text = tk.Label(self.frame_list, width=8, text="v", background=color)
-            drifty_text = tk.Label(self.frame_list, width=8, text="w", background=color)
-
-            driftx_text.grid(row=num + 2, column=2, padx=1, pady=0, ipadx=0, ipady=0)
-            driftx_entry.grid(row=num + 2, column=3, padx=1, pady=0, ipadx=0, ipady=0)
-            drifty_text.grid(row=num + 2, column=4, padx=1, pady=0, ipadx=0, ipady=0)
-            drifty_entry.grid(row=num + 2, column=5, padx=1, pady=0, ipadx=0, ipady=0)
-            return ["drift", driftx_var, drifty_var]
-
-        elif process[0] == "rescale":
-            rescale_all_var = StringVar()
-            rescale_all_entry = tk.Entry(
-                self.frame_list,
-                width=8,
-                background=color,
-                textvariable=rescale_all_var,
-            )
-            rescale_all_entry.insert(tk.END, process[1])
-            #
-            rescale_x_var = StringVar()
-            rescale_x_entry = tk.Entry(
-                self.frame_list,
-                width=8,
-                background=color,
-                textvariable=rescale_x_var,
-            )
-            rescale_x_entry.insert(tk.END, process[2])
-            #
-            rescale_y_var = StringVar()
-            rescale_y_entry = tk.Entry(
-                self.frame_list,
-                width=8,
-                background=color,
-                textvariable=rescale_y_var,
-            )
-            rescale_y_entry.insert(tk.END, process[3])
-            #
-            rescale_all_text = tk.Label(
-                self.frame_list, width=8, text="All", background=color
-            )
-            rescale_x_text = tk.Label(
-                self.frame_list, width=8, text="X", background=color
-            )
-            rescale_y_text = tk.Label(
-                self.frame_list, width=8, text="Y", background=color
-            )
-            #
-            rescale_all_text.grid(
-                row=num + 2, column=2, padx=1, pady=0, ipadx=0, ipady=0
-            )
-            rescale_all_entry.grid(
-                row=num + 2, column=3, padx=1, pady=0, ipadx=0, ipady=0
-            )
-            rescale_x_text.grid(row=num + 2, column=4, padx=1, pady=0, ipadx=0, ipady=0)
-            rescale_x_entry.grid(
-                row=num + 2, column=5, padx=1, pady=0, ipadx=0, ipady=0
-            )
-            rescale_y_text.grid(row=num + 2, column=6, padx=1, pady=0, ipadx=0, ipady=0)
-            rescale_y_entry.grid(
-                row=num + 2, column=7, padx=1, pady=0, ipadx=0, ipady=0
-            )
-            return [
-                "rescale",
-                rescale_all_var,
-                rescale_x_var,
-                rescale_y_var,
-            ]
-
-        elif process[0] == "cut":
-            cutvar = StringVar()
-            cut_entry = tk.Entry(
-                self.frame_list, width=8, background=color, textvariable=cutvar
-            )
-            cut_entry.insert(tk.END, process[1])
-            cut_text = tk.Label(
-                self.frame_list, width=8, text="value", background=color
-            )
-            cut_text.grid(row=num + 2, column=2, padx=1, pady=0, ipadx=0, ipady=0)
-            cut_entry.grid(row=num + 2, column=3, padx=1, pady=0, ipadx=0, ipady=0)
-            return ["cut", cutvar]
-
-        elif process[0] == "int_change":
-            int_var = tk.StringVar()
-            int_cb = ttk.Combobox(
-                self.frame_list,
-                textvariable=int_var,
-                width=12,
-                values=self.int_methods,
-            )
-            int_cb.current(self.int_methods.index(process[1]))
-            int_text = tk.Label(
-                self.frame_list, width=8, text="Method", background=color
-            )
-            int_text.grid(row=num + 2, column=2, padx=1, pady=0, ipadx=0, ipady=0)
-            int_cb.grid(row=num + 2, column=3, padx=1, pady=0, ipadx=0, ipady=0)
-            return ["int_change", int_var]
-
-        elif process[0] == "gamma":
-            gammavar = StringVar()
-            gamma_entry = tk.Entry(
-                self.frame_list, width=8, background=color, textvariable=gammavar
-            )
-            gamma_entry.insert(tk.END, process[1])
-            gamma_text = tk.Label(
-                self.frame_list, width=8, text="value", background=color
-            )
-            gamma_text.grid(row=num + 2, column=2, padx=1, pady=0, ipadx=0, ipady=0)
-            gamma_entry.grid(row=num + 2, column=3, padx=1, pady=0, ipadx=0, ipady=0)
-            return ["gamma", gammavar]
-
-        elif process[0] == "edge_det":
-            edge_var = tk.StringVar()
-            edge_cb = ttk.Combobox(
-                self.frame_list,
-                textvariable=edge_var,
-                width=12,
-                values=self.edge_methods,
-            )
-            edge_cb.set(process[1])
-            edge_text = tk.Label(
-                self.frame_list, width=8, text="Method", background=color
-            )
-            #
-            edge_text.grid(row=num + 2, column=2, padx=1, pady=0, ipadx=0, ipady=0)
-            edge_cb.grid(row=num + 2, column=3, padx=1, pady=0, ipadx=0, ipady=0)
-            #
-            edge_range_var = StringVar()
-            edge_range_entry = tk.Entry(
-                self.frame_list, width=8, background=color, textvariable=edge_range_var
-            )
-            edge_range_entry.insert(tk.END, process[2])
-            edge_range_text = tk.Label(
-                self.frame_list, width=8, text="Range", background=color
-            )
-            #
-            edge_xor_var = tk.BooleanVar()
-            edge_xor_var.set(process[3])
-            xor_check = tk.Checkbutton(
-                self.frame_list,
-                variable=edge_xor_var,
-                text="x original",
-            )
-
-            #
-            edge_range_text.grid(
-                row=num + 2, column=4, padx=1, pady=0, ipadx=0, ipady=0
-            )
-            edge_range_entry.grid(
-                row=num + 2, column=5, padx=1, pady=0, ipadx=0, ipady=0
-            )
-            xor_check.grid(row=num + 2, column=6, padx=1, pady=0, ipadx=0, ipady=0)
-            return ["edge_det", edge_var, edge_range_var, edge_xor_var]
-
-        elif process[0] == "square":
-            return ["square"]
-
-        elif process[0] == "oddize":
-            return ["oddize"]
-
-        elif process[0] == "ave_sub":
-            return ["ave_sub"]
-
-        elif process[0] == "mirror":
-            return ["mirror"]
-
-        elif process[0] == "ignore_neg":
-            return ["ignore_neg"]
-
-        elif process[0] == "FFT":
-            pass
-
-        elif process[0] == "Symm":
-            symm_var = tk.StringVar()
-            sym_cb = ttk.Combobox(
-                self.frame_list,
-                textvariable=symm_var,
-                width=12,
-                values=self.method_symmetrize_table,
-            )
-            sym_cb.current(self.method_symmetrize_table.index(process[1]))
-            symm_text = tk.Label(
-                self.frame_list, width=8, text="Method", background=color
-            )
-            symm_text.grid(row=num + 2, column=2, padx=1, pady=0, ipadx=0, ipady=0)
-            sym_cb.grid(row=num + 2, column=3, padx=1, pady=0, ipadx=0, ipady=0)
-
-            return ["Symm", symm_var]
-
-        elif process[0] == "Rot":
-            rotvar = StringVar()
-            rot_entry = tk.Entry(
-                self.frame_list, width=8, background=color, textvariable=rotvar
-            )
-            rot_entry.insert(tk.END, process[1])
-            rot_text = tk.Label(
-                self.frame_list, width=8, text="value", background=color
-            )
-            rot_text.grid(row=num + 2, column=2, padx=1, pady=0, ipadx=0, ipady=0)
-            rot_entry.grid(row=num + 2, column=3, padx=1, pady=0, ipadx=0, ipady=0)
-            return ["Rot", rotvar]
+        list_num += self.num_process_real
+        self.check_list_FFT, self.var_list_FFT, self.swith_list_FFT = self.list_form(
+            self.processes_FFT, list_num, "FFT"
+        )
 
     def create_widgets_buttons_manaage(self):
         self.reflesh_btn = tk.Button(
@@ -643,15 +343,6 @@ class P_window:
             variable=self.allim_bool,
             text="For all images",
         )
-        """
-        self.perform_process_btn = tk.Button(
-            self.manage_process_window,
-            text="Run process",
-            command=self.perform_process,
-            height=3,
-            width=20,
-        )
-        """
         #
         self.dir_name_process = self.dir_name
         self.process_list = self.read_process_list(self.dir_name_process)
@@ -667,7 +358,6 @@ class P_window:
         self.fol_choice_text_process = ttk.Label(
             self.manage_process_window, text="Folder"
         )
-
         #
         self.var_images_process = tk.StringVar()
         self.choice_process = ttk.Combobox(
@@ -695,9 +385,6 @@ class P_window:
         self.read_process_btn.place(x=470, y=375)
         self.run_all_btn.place(x=470, y=405)
         self.allim_check.place(x=600, y=405)
-        # self.perform_process_btn.place(x=500, y=300)
-        # self.fol_choice_process.place(x=120, y=365)
-
         self.pro_fol_name.place(x=120, y=348)
         self.button_profolchoice.place(x=470, y=345)
         self.fol_choice_text_process.place(x=20, y=348)
@@ -713,8 +400,8 @@ class P_window:
         self.create_frame_datalist()
         self.val_reset(self.prev_process)
         self.prev_process = "reset"
-        self.run_process()
-        self.show_image()
+        # self.run_process()
+        # self.show_image()
 
     def read_process_clicked(self):
         data_path = self.dir_name_process + "\\" + self.choice_process.get()
@@ -796,8 +483,8 @@ class P_window:
         self.rewrite_process()
         if self.im_select:
             self.val_reset(self.prev_process)
-            self.run_process()
-            self.show_image()
+            # self.run_process()
+            # self.show_image()
         self.prev_process = "reset"
 
     def reload_process(self):
@@ -808,8 +495,8 @@ class P_window:
             self.new_process = "Reload"
             self.process_function()
             self.val_reset(self.prev_process)
-            self.run_process()
-            self.show_image()
+            # self.run_process()
+            # self.show_image()
             self.prev_process = "Reload"
         self.reflesh_btn["state"] = "normal"
 
