@@ -16,6 +16,7 @@ class Smoothing:
     name = "Smoothing"
     range = None
     params = ["range"]
+    params_type = ["entry"]
     image = None
     switch = True
 
@@ -41,6 +42,7 @@ class Median:
     name = "Median"
     range = None
     params = ["range"]
+    params_type = ["entry"]
     image = None
     switch = True
 
@@ -65,6 +67,7 @@ class Drift:
     x = None
     y = None
     params = ["x", "y"]
+    params_type = ["entry", "entry"]
     cal = None
     switch = True
     type = None
@@ -129,7 +132,9 @@ class Rescale:
     x = None
     y = None
     params = ["All", "X", "Y"]
+    params_type = ["entry", "entry", "entry"]
     cal = None
+    switch = True
 
     def rewrite(self, params):
         self.all = params[0]
@@ -171,7 +176,9 @@ class Cut:
     image = None
     ratio = None
     params = ["ratio"]
+    params_type = ["entry"]
     cal = None
+    switch = True
 
     def rewrite(self, params):
         self.ratio = params[0]
@@ -202,7 +209,13 @@ class Intensity:
     image = None
     method = None
     params = ["method"]
+    params_type = ["combo_box"]
+    method_list = ["Normal", "Log", "Sqrt"]
     cal = None
+    switch = True
+
+    def get_list(self, name):
+        return self.method_list
 
     def rewrite(self, params):
         self.method = params[0]
@@ -242,8 +255,10 @@ class Gamma:
     name = "Gamma"
     image = None
     val = None
-    val = ["method"]
+    params = ["val"]
+    params_type = ["entry"]
     cal = None
+    switch = True
 
     def rewrite(self, params):
         self.val = params[0]
@@ -267,8 +282,20 @@ class Edge:
     method = None
     const = None
     mul_or = None
-    val = ["method", "const.", "mul. original"]
+    params = ["method", "const.", "mul. or."]
+    params_type = ["combo_box", "entry", "check_box"]
+    method_list = [
+            "None",
+            "Sobel_x",
+            "Sobel_y",
+            "Laplacian",
+            "Curvature",
+        ]
     cal = None
+    switch = True
+
+    def get_list(self, name):
+        return self.method_list
 
     def rewrite(self, params):
         self.method = params[0]
@@ -279,8 +306,8 @@ class Edge:
         if p_name == "method":
             return self.method
         elif p_name == "const.":
-            return self.val
-        elif p_name == "mul. original":
+            return self.const
+        elif p_name == "mul. or.":
             return self.mul_or
 
     def get_kernel(self, k):
@@ -368,11 +395,223 @@ class Edge:
         )
 
 
+
+class Symm:
+    name = "Symmetrize"
+    image = None
+    method = None
+    params = ["method"]
+    params_type = ["combo_box"]
+    method_list = [
+            "None",
+            "mirror_X",
+            "mirror_XY",
+            "six_fold",
+            "six_fold+mirror",
+        ]
+    cal = None
+    switch = True
+
+    def rewrite(self, params):
+        self.method = params[0]
+
+    def getval(self, p_name):
+        if p_name == "method":
+            return self.method
+
+    def run(self):
+        height, width = self.image.shape[:2]
+        center = (int(width / 2), int(height / 2))
+
+        if self.method == "None":
+            image_sym = self.image
+        elif self.method == "mirror_XY":
+            image2 = cv2.flip(self.image / 4, 0)
+            image3 = cv2.flip(self.image / 4, 1)
+            image4 = cv2.flip(self.image / 4, -1)
+            image5 = cv2.add(self.image / 4, image2)
+            image6 = cv2.add(image3, image4)
+            image_sym = cv2.add(image5, image6)
+
+        elif self.method == "mirror_X":
+            image2 = cv2.flip(self.image / 2, 0)
+            image_sym = cv2.add(self.image / 2, image2)
+
+        elif self.method == "six_fold":
+            affine_60 = cv2.getRotationMatrix2D(center, 60, 1)
+            image2 = cv2.warpAffine(
+                self.image,
+                affine_60,
+                (width, height),
+                flags=cv2.INTER_CUBIC,
+            )
+            image3 = cv2.warpAffine(
+                image2,
+                affine_60,
+                (width, height),
+                flags=cv2.INTER_CUBIC,
+            )
+            image4 = cv2.warpAffine(
+                image3,
+                affine_60,
+                (width, height),
+                flags=cv2.INTER_CUBIC,
+            )
+            image5 = cv2.warpAffine(
+                image4,
+                affine_60,
+                (width, height),
+                flags=cv2.INTER_CUBIC,
+            )
+            image6 = cv2.warpAffine(
+                image5,
+                affine_60,
+                (width, height),
+                flags=cv2.INTER_CUBIC,
+            )
+
+            image_s = cv2.add(self.image / 6, image2 / 6)
+            image_p = cv2.add(image3 / 6, image4 / 6)
+            image_k = cv2.add(image5 / 6, image6 / 6)
+
+            image7 = cv2.add(image_s, image_p)
+            image_sym = cv2.add(image7, image_k)
+
+        elif self.method == "six_fold+mirror":
+            affine_60 = cv2.getRotationMatrix2D(center, 60, 1)
+
+            image2 = cv2.warpAffine(
+                self.image,
+                affine_60,
+                (width, height),
+                flags=cv2.INTER_CUBIC,
+            )
+            image3 = cv2.warpAffine(
+                image2,
+                affine_60,
+                (width, height),
+                flags=cv2.INTER_CUBIC,
+            )
+            image4 = cv2.warpAffine(
+                image3,
+                affine_60,
+                (width, height),
+                flags=cv2.INTER_CUBIC,
+            )
+            image5 = cv2.warpAffine(
+                image4,
+                affine_60,
+                (width, height),
+                flags=cv2.INTER_CUBIC,
+            )
+            image6 = cv2.warpAffine(
+                image5,
+                affine_60,
+                (width, height),
+                flags=cv2.INTER_CUBIC,
+            )
+
+            image_m1 = cv2.flip(self.image, 0)
+            image_m2 = cv2.warpAffine(
+                image_m1,
+                affine_60,
+                (width, height),
+                flags=cv2.INTER_CUBIC,
+            )
+            image_m3 = cv2.warpAffine(
+                image_m2,
+                affine_60,
+                (width, height),
+                flags=cv2.INTER_CUBIC,
+            )
+            image_m4 = cv2.warpAffine(
+                image_m3,
+                affine_60,
+                (width, height),
+                flags=cv2.INTER_CUBIC,
+            )
+            image_m5 = cv2.warpAffine(
+                image_m4,
+                affine_60,
+                (width, height),
+                flags=cv2.INTER_CUBIC,
+            )
+            image_m6 = cv2.warpAffine(
+                image_m5,
+                affine_60,
+                (width, height),
+                flags=cv2.INTER_CUBIC,
+            )
+
+            image_s = cv2.add(self.image / 12, image2 / 12)
+            image_p = cv2.add(image3 / 12, image4 / 12)
+            image_k = cv2.add(image5 / 12, image6 / 12)
+
+            image_ms = cv2.add(image_m1 / 12, image_m2 / 12)
+            image_mp = cv2.add(image_m3 / 12, image_m4 / 12)
+            image_mk = cv2.add(image_m5 / 12, image_m6 / 12)
+
+            image_q = cv2.add(image_s, image_p)
+            image_w = cv2.add(image_k, image_ms)
+            image_e = cv2.add(image_mp, image_mk)
+
+            image7 = cv2.add(image_q, image_w)
+            image_sym = cv2.add(image7, image_e)
+        return image_sym
+
+    def rec(self):
+        return "Symmetrize:" + "\n\t" + "method: " + "\t" + str(self.method) + "\n"
+
+
+class Angle:
+    name = "Angle"
+    image = None
+    angle = None
+    params = ["angle"]
+    params_type = ["entry"]
+    cal = None
+    switch = True
+
+    def rewrite(self, params):
+        self.method = params[0]
+
+    def getval(self, p_name):
+        if p_name == "angle":
+            return self.angle
+
+    def run(self):
+        height, width = self.image.shape[:2]
+        center = (int(width / 2), int(height / 2))
+        affine_trans = cv2.getRotationMatrix2D(center, self.angle, 1)
+        r_image = cv2.warpAffine(
+            self.image,
+            affine_trans,
+            (width, height),
+            flags=cv2.INTER_CUBIC,
+        )
+        return r_image
+
+    def rec(self):
+        return "Angle:" + "\n\t" + "angle: " + "\t" + str(self.angle) + "\n"
+
+
+
+
+
+
+
+
+
+
+
 class Square:
     name = "Squarize"
+    image = None
     on = None
-    val = ["on/off"]
+    params = ["on/off"]
+    params_type = ["pass"]
     cal = None
+    switch = True
 
     def rewrite(self, params):
         self.on = params[0]
@@ -382,19 +621,19 @@ class Square:
             return self.on
 
     def run(self):
-        height, width = self.image.shape[:, 2]
+        height, width = self.image.shape[:2]
         if height == width:
-            pass
+            image = self.image
         elif width > height:
             center = (int(width / 2), int(height / 2))
             diff = int(width / 2)
-            image = image[
+            image = self.image[
                 center[1] - diff : center[1] + diff, center[0] - diff : center[0] + diff
             ]
         else:
             center = (int(width / 2), int(height / 2))
             diff = int(height / 2)
-            image = image[
+            image = self.image[
                 center[1] - diff : center[1] + diff, center[0] - diff : center[0] + diff
             ]
         return image
@@ -405,9 +644,13 @@ class Square:
 
 class Odd:
     name = "Oddize"
+    image = None
     on = None
-    val = ["on/off"]
+    params = ["on/off"]
     cal = None
+    params_type = ["pass"]
+    switch = True
+
 
     def rewrite(self, params):
         self.on = params[0]
@@ -417,7 +660,7 @@ class Odd:
             return self.on
 
     def run(self):
-        height, width = self.image.shape[:, 2]
+        height, width = self.image.shape[:2]
         if width % 2 == 0:
             width = int(self.image.shape[1] + 1)
         if height % 2 == 0:
@@ -431,9 +674,12 @@ class Odd:
 
 class Average:
     name = "Ave. sub."
+    image = None
     on = None
-    val = ["on/off"]
+    params = ["on/off"]
+    params_type = ["pass"]
     cal = None
+    switch = True
 
     def rewrite(self, params):
         self.on = params[0]
@@ -456,8 +702,10 @@ class Average:
 class Mirror:
     name = "mirror"
     on = None
-    val = ["on/off"]
+    params = ["on/off"]
+    params_type = ["pass"]
     cal = None
+    switch = True
 
     def rewrite(self, params):
         self.on = params[0]
@@ -477,8 +725,10 @@ class Mirror:
 class Ignore_neg:
     name = "ignore neg."
     on = None
-    val = ["on/off"]
+    params = ["on/off"]
+    params_type = ["pass"]
     cal = None
+    switch = True
 
     def rewrite(self, params):
         self.on = params[0]

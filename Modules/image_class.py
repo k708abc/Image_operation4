@@ -26,7 +26,7 @@ class ImageList:
                 self.images.append(file)
                 self.types.append(["bmp"])
             elif data_type[1] == ".txt":
-                check = self.check_text(file)
+                check = self.check_text(data_path)
                 if check:
                     self.images.append(file)
                     self.types.append(["txt"])

@@ -131,7 +131,7 @@ class P_window:
         switch_list = []
         for i in range(1, len(process)):
             var_list.append([])
-            if (i) % 2 == 0:
+            if (i + 1) % 2 == 0:
                 color = "#cdfff7"  # blue
             else:
                 color = "white"
@@ -157,28 +157,52 @@ class P_window:
             )
             #
             clm = 2
-            for pro_name in process[i].params:
+            for pro_name, pro_type in zip(process[i].params, process[i].params_type):
                 text = tk.Label(
                     self.frame_list, width=6, text=pro_name, background=color
                 )
-                var = StringVar()
-                entry = tk.Entry(
-                    self.frame_list, width=5, background=color, textvariable=var
-                )
-                entry.insert(tk.END, process[i].getval(pro_name))
                 text.grid(
                     row=start_val + i + 1, column=clm, padx=1, pady=0, ipadx=0, ipady=0
                 )
-                entry.grid(
-                    row=start_val + i + 1,
-                    column=clm + 1,
-                    padx=1,
-                    pady=0,
-                    ipadx=0,
-                    ipady=0,
-                )
+                component = None
+                if pro_type == "entry":
+                    var = StringVar()
+                    component = tk.Entry(
+                        self.frame_list, width=5, background=color, textvariable=var
+                    )
+                    component.insert(tk.END, process[i].getval(pro_name))
+
+                elif pro_type == "combo_box":
+                    txt_var = process[i].get_list(pro_name)
+
+                    var = tk.StringVar()
+                    component = ttk.Combobox(
+                        self.frame_list,
+                        textvariable=var,
+                        width=12,
+                        values=txt_var,
+                    )
+                    component.set(process[i].getval(pro_name))
+                elif pro_type == "check_box":
+                    var = tk.BooleanVar()
+                    var.set(process[i].getval(pro_name))
+                    component = tk.Checkbutton(
+                        self.frame_list,
+                        variable=var,
+                        text="",
+                    )
+                if component != None:
+                    component.grid(
+                        row=start_val + i + 1,
+                        column=clm + 1,
+                        padx=1,
+                        pady=0,
+                        ipadx=0,
+                        ipady=0,
+                    )
+                    var_list[-1].append(var)
                 clm += 2
-                var_list[-1].append(var)
+
 
             # on_off switch
             sw_bool = tk.BooleanVar()

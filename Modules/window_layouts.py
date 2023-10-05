@@ -40,6 +40,7 @@ class Layouts:
         self.cb_median_unit.grid(row=1, column=5, **self.padWE)
 
     def create_layout_drift(self):
+        self.drift_text.grid(row=0, column=0, **self.padWE)
         self.drift_dx_text.grid(row=0, column=1, **self.padWE)
         self.drift_dx.grid(row=0, column=2, **self.padWE)
         self.drift_dy_text.grid(row=0, column=3, **self.padWE)
@@ -75,8 +76,8 @@ class Layouts:
     def create_layout_sym(self):
         self.sym_text.grid(row=0, column=0, **self.padWE)
         self.method_symmetrize_cb.grid(row=0, column=1, **self.padWE)
-        self.symm_angle_text.grid(row=0, column=3, **self.padWE)
-        self.symm_angle_entry.grid(row=0, column=4, **self.padWE)
+        self.angle_text.grid(row=0, column=3, **self.padWE)
+        self.angle_entry.grid(row=0, column=4, **self.padWE)
 
     def create_layout_line(self):
         self.line_text.grid(row=1, column=0, **self.padWE)

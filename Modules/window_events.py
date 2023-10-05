@@ -19,6 +19,8 @@ from Modules.process_classes import (
     Average,
     Mirror,
     Ignore_neg,
+    Symm,
+    Angle
 )
 from Modules.drift_fix_windows import drift_two_images
 from Modules.drift_fix_fft import drift_fft
@@ -182,12 +184,12 @@ class Events:
     def drift_process(self, process_list):
         if process_list[-1].name == "Drift":
             process_list[-1].x = float(self.drift_dx.get())
-            process_list[-1].y = float(self.drift_dx.get())
+            process_list[-1].y = float(self.drift_dy.get())
         else:
             self.val_reset(process_list[-1].name)
             val = Drift()
             val.x = float(self.drift_dx.get())
-            val.y = float(self.drift_dx.get())
+            val.y = float(self.drift_dy.get())
             val.image = process_list[-1].run()
             process_list.append(val)
         return process_list
@@ -201,6 +203,8 @@ class Events:
             self.processes_FFT = self.dfift_process(self.processes_FFT)
             self.FFT_image.image_mod = self.processes_FFT[-1].run()
             self.FFT_image.show_image()
+        if self.manage_bool:
+            self.update_process_w()
 
     def drift_function(self):
         if self.drift_cb.current() == 0:
@@ -234,6 +238,8 @@ class Events:
             self.processes_FFT = self.rescale_process(self.processes_FFT)
             self.FFT_image.image_mod = self.processes_FFT[-1].run()
             self.FFT_image.show_image()
+        if self.manage_bool:
+            self.update_process_w()
 
     def cut_process(self, process_list):
         if process_list[-1].name == "Cut":
@@ -255,6 +261,8 @@ class Events:
             self.processes_FFT = self.cut_process(self.processes_FFT)
             self.FFT_image.image_mod = self.processes_FFT[-1].run()
             self.FFT_image.show_image()
+        if self.manage_bool:
+            self.update_process_w()
 
     def int_process(self, process_list):
         if process_list[-1].name == "Intensity":
@@ -276,6 +284,8 @@ class Events:
             self.processes_FFT = self.int_process(self.processes_FFT)
             self.FFT_image.image_mod = self.processes_FFT[-1].run()
             self.FFT_image.show_image()
+        if self.manage_bool:
+            self.update_process_w()
 
     def gamma_process(self, process_list):
         if process_list[-1].name == "Gamma":
@@ -297,23 +307,25 @@ class Events:
             self.processes_FFT = self.gamma_process(self.processes_FFT)
             self.FFT_image.image_mod = self.processes_FFT[-1].run()
             self.FFT_image.show_image()
+        if self.manage_bool:
+            self.update_process_w()
 
     def edge_process(self, process_list):
         if process_list[-1].name == "Edge":
             process_list[-1].method = self.edge_cb.get()
-            process_list[-1].val = self.edge_entry.get()
+            process_list[-1].const = self.edge_entry.get()
             process_list[-1].mul_or = self.mulor_bool.get()
         else:
             self.val_reset(process_list[-1].name)
             val = Edge()
             val.method = self.edge_cb.get()
-            val.val = self.edge_entry.get()
+            val.const = self.edge_entry.get()
             val.mul_or = self.mulor_bool.get()
             val.image = process_list[-1].run()
             process_list.append(val)
         return process_list
 
-    def edge_change(self, event):
+    def edge_change(self, event = None):
         if self.real_shown:
             self.processes = self.edge_process(self.processes)
             self.real_image.image_mod = self.processes[-1].run()
@@ -322,6 +334,73 @@ class Events:
             self.processes_FFT = self.edge_process(self.processes_FFT)
             self.FFT_image.image_mod = self.processes_FFT[-1].run()
             self.FFT_image.show_image()
+        if self.manage_bool:
+            self.update_process_w()
+
+    def symm_process(self, process_list):
+        if process_list[-1].name == "Symm":
+            process_list[-1].method = self.edge_cb.get()
+            process_list[-1].const = self.edge_entry.get()
+            process_list[-1].mul_or = self.mulor_bool.get()
+        else:
+            self.val_reset(process_list[-1].name)
+            val = Symm()
+            val.method = self.edge_cb.get()
+            val.const = self.edge_entry.get()
+            val.mul_or = self.mulor_bool.get()
+            val.image = process_list[-1].run()
+            process_list.append(val)
+        return process_list
+
+    def cb_symmetrize_selected(self, event):
+        if self.real_shown:
+            self.processes = self.symm_process(self.processes)
+            self.real_image.image_mod = self.processes[-1].run()
+            self.real_image.show_image()
+        else:
+            self.processes_FFT = self.symm_process(self.processes_FFT)
+            self.FFT_image.image_mod = self.processes_FFT[-1].run()
+            self.FFT_image.show_image()
+        if self.manage_bool:
+            self.update_process_w()
+
+
+    def angle_process(self, process_list):
+        if process_list[-1].name == "Angle":
+            process_list[-1].angle = float(self.symm_angle_entry.get())
+        else:
+            self.val_reset(process_list[-1].name)
+            val = Angle()
+            val.angle = float(self.symm_angle_entry.get())
+            val.image = process_list[-1].run()
+            process_list.append(val)
+        return process_list
+
+
+    def angle_return(self, event = None):
+        if self.real_shown:
+            self.processes = self.angle_process(self.processes)
+            self.real_image.image_mod = self.processes[-1].run()
+            self.real_image.show_image()
+        else:
+            self.processes_FFT = self.angle_process(self.processes_FFT)
+            self.FFT_image.image_mod = self.processes_FFT[-1].run()
+            self.FFT_image.show_image()
+        if self.manage_bool:
+            self.update_process_w()
+
+    def angle_up(self, event):
+        angle = float(self.symm_angle_entry.get()) + 1
+        self.symm_angle_entry.delete(0, tk.END)
+        self.symm_angle_entry.insert(tk.END, angle)
+        self.angle_return()
+
+    def angle_down(self, event):
+        angle = float(self.symm_angle_entry.get()) - 1
+        self.symm_angle_entry.delete(0, tk.END)
+        self.symm_angle_entry.insert(tk.END, angle)
+        self.angle_return()
+
 
     def square_process(self, process_list):
         if process_list[-1].name == "Squarize":
@@ -343,6 +422,8 @@ class Events:
             self.processes_FFT = self.square_process(self.processes_FFT)
             self.FFT_image.image_mod = self.processes_FFT[-1].run()
             self.FFT_image.show_image()
+        if self.manage_bool:
+            self.update_process_w()
 
     def odd_process(self, process_list):
         if process_list[-1].name == "Oddize":
@@ -364,6 +445,8 @@ class Events:
             self.processes_FFT = self.odd_process(self.processes_FFT)
             self.FFT_image.image_mod = self.processes_FFT[-1].run()
             self.FFT_image.show_image()
+        if self.manage_bool:
+            self.update_process_w()
 
     def ave_process(self, process_list):
         if process_list[-1].name == "Ave. sub.":
@@ -385,6 +468,8 @@ class Events:
             self.processes_FFT = self.ave_process(self.processes_FFT)
             self.FFT_image.image_mod = self.processes_FFT[-1].run()
             self.FFT_image.show_image()
+        if self.manage_bool:
+            self.update_process_w()
 
     def mirror_process(self, process_list):
         if process_list[-1].name == "mirror":
@@ -406,6 +491,8 @@ class Events:
             self.processes_FFT = self.mirror_process(self.processes_FFT)
             self.FFT_image.image_mod = self.processes_FFT[-1].run()
             self.FFT_image.show_image()
+        if self.manage_bool:
+            self.update_process_w()
 
     def igneg_process(self, process_list):
         if process_list[-1].name == "ignore neg.":
@@ -427,6 +514,8 @@ class Events:
             self.processes_FFT = self.igneg_process(self.processes_FFT)
             self.FFT_image.image_mod = self.processes_FFT[-1].run()
             self.FFT_image.show_image()
+        if self.manage_bool:
+            self.update_process_w()
 
     def original_size_changed(self, event):
         self.current_size_update()
@@ -440,20 +529,7 @@ class Events:
     def cb_window_selected(self, event):
         pass
 
-    def cb_symmetrize_selected(self, event):
-        pass
 
-    def symm_angle_return(self, event):
-        pass
-
-    def symm_angle_up(self, event):
-        pass
-
-    def symm_angle_down(self, event):
-        pass
-
-    def draw_line_checked(self):
-        pass
 
     def record_name_changed(self, event):
         pass

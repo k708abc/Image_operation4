@@ -194,6 +194,7 @@ class Window(ttk.Frame):
         self.frame_drift.pack()
 
     def create_widgets_drift(self):
+        self.drift_text = ttk.Label(self.frame_drift, text="Drift")
         self.drift_dx_text = ttk.Label(self.frame_drift, text="v (nm/scan)")
         self.drift_dx = ttk.Entry(self.frame_drift, width=7)
         self.drift_dx.insert(tk.END, "0")
@@ -339,14 +340,14 @@ class Window(ttk.Frame):
         )
         self.method_symmetrize_cb.current(0)
         #
-        self.symm_angle_entry = tk.Entry(self.frame_sym, text="Rotation angle", width=7)
-        self.symm_angle_entry.delete(0, tk.END)
-        self.symm_angle_entry.insert(tk.END, 0)
-        self.symm_angle_entry.bind("<Return>", self.symm_angle_return)
-        self.symm_angle_entry.bind("<Up>", self.symm_angle_up)
-        self.symm_angle_entry.bind("<Down>", self.symm_angle_down)
+        self.angle_entry = tk.Entry(self.frame_sym, text="Rotation angle", width=7)
+        self.angle_entry.delete(0, tk.END)
+        self.angle_entry.insert(tk.END, 0)
+        self.angle_entry.bind("<Return>", self.angle_return)
+        self.angle_entry.bind("<Up>", self.angle_up)
+        self.angle_entry.bind("<Down>", self.angle_down)
         #
-        self.symm_angle_text = tk.Label(self.frame_sym, text="Rotation")
+        self.angle_text = tk.Label(self.frame_sym, text="Rotation")
         #
 
     def create_widgets_line(self):
