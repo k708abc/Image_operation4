@@ -469,7 +469,7 @@ class Window(ttk.Frame):
 
     def create_widgets_fft(self):
         self.fft_button = tk.Button(
-            self.frame_fft, text="Real → FFT", command=self.fft_function, width=30
+            self.frame_fft, text="Real → FFT", command=self.fft_clicked, width=30
         )
         #
         self.var_method_fft = tk.StringVar()
@@ -484,7 +484,7 @@ class Window(ttk.Frame):
         self.method_text = ttk.Label(self.frame_fft, text="Intensity")
         #
         self.var_window = tk.StringVar()
-        self.window_table = ["None", "Hann", "Hamming", "Blackman"]
+        self.window_table = ["None", "hann", "hamming", "blackman"]
         self.window_cb = ttk.Combobox(
             self.frame_fft, textvariable=self.var_window, values=self.window_table
         )

@@ -6,6 +6,7 @@ from PIL import Image
 import cv2
 import glob
 import math
+from skimage.filters import window
 
 
 class ImageList:
@@ -80,6 +81,9 @@ class MyImage:
     min_contrast = 0
     color_num = 0
     line_method = None
+    params = None  # x, y, bias
+    x_current = None
+    y_current = None
 
     def initialize(self):
         self.upper = 255
@@ -88,10 +92,13 @@ class MyImage:
         self.y_mag = 1
 
     def read_image(self):
-        self.image_or, self.scan_params = self.get_image_values()
+        self.image_or, self.params = self.get_image_values()
         self.y_or, self.x_or = self.image_or.shape[:2]
         self.open_bool = True
         self.image_mod = np.copy(self.image_or)
+        self.default_contrast()
+
+    def default_contrast(self):
         self.max_contrast = np.max(self.image_mod)
         self.min_contrast = np.min(self.image_mod)
 
@@ -240,7 +247,7 @@ class MyImage:
     def draw_line(self):
         height, width = self.image_cad.shape[:2]
         color_line = 255
-        if self.line_method == None:
+        if self.line_method is None:
             pass
         elif self.line_method == "XY":
             cv2.line(
@@ -307,3 +314,82 @@ class MyImage:
         if self.open_bool:
             self.max_contrast = np.max(self.image_mod)
             self.min_contrast = np.min(self.image_mod)
+
+
+class FFT:
+    image = None
+    method = "Sqrt"
+    window_func = "None"
+    image_mod = None
+    method_table = ["Linear", "Sqrt", "Log"]
+    window_table = ["None", "hann", "hamming", "blackman"]
+
+    def datatype_change(self, image):
+        maximum = np.max(image)
+        minimum = np.min(image)
+        image_mod = (image - minimum) / (maximum - minimum) * 255
+        return image_mod.astype(np.uint8)
+
+    def subtraction(self, image):
+        minimum = np.min(image)
+        return image - minimum
+
+    def apply_window(self, image):
+        if self.window_func == "None":
+            target = self.subtraction(image)
+        else:
+            wimage = image * window(self.window_func, image.shape)
+            target = self.subtraction(wimage)
+        return target
+
+    def fft_processing(self, w_image):
+        fimage_or = np.fft.fft2(w_image)
+        fimage_or = np.fft.fftshift(fimage_or)
+        fimage_or = np.abs(fimage_or)
+        return fimage_or
+
+    def fft_scaling(self, image):
+        if self.method == "Linear":
+            fimage = image
+        elif self.method == "Log":
+            fimage = np.log(image, out=np.zeros_like(image), where=(image != 0))
+        elif self.method == "Sqrt":
+            fimage = np.sqrt(image)
+        return fimage
+
+    def cut_center(self, image):
+        width, height = image.shape[1], image.shape[0]
+        image_mod = np.copy(image)
+        if width % 2 == 0:
+            center_x = int(width / 2)
+            center_y = int(height / 2)
+        else:
+            center_x = int((width - 1) / 2)
+            center_y = int((height - 1) / 2)
+        #
+        value = (
+            image_mod[center_y - 2][center_x - 2]
+            + image_mod[center_y - 2][center_x + 2]
+            + image_mod[center_y + 2][center_x - 2]
+            + image_mod[center_y + 2][center_x + 2]
+        ) / 4
+        #
+        image_mod[center_y - 1][center_x - 1] = value
+        image_mod[center_y - 1][center_x] = value
+        image_mod[center_y - 1][center_x + 1] = value
+        image_mod[center_y][center_x - 1] = value
+        image_mod[center_y][center_x] = value
+        image_mod[center_y][center_x + 1] = value
+        image_mod[center_y + 1][center_x - 1] = value
+        image_mod[center_y + 1][center_x] = value
+        image_mod[center_y + 1][center_x + 1] = value
+        return image_mod
+
+    def run(self):
+        image_mod = self.datatype_change(self.image)
+        w_image = self.apply_window(image_mod)
+        fft_image = self.fft_processing(w_image)
+        fft_image = self.fft_scaling(fft_image)
+        fft_image = fft_image.astype(np.float32)
+        fft_image = self.cut_center(fft_image)
+        return fft_image

@@ -7,9 +7,13 @@ import cv2
 class ImOpen:
     name = "Im_open"
     image = None
+    switch = True
 
     def run(self):
         return self.image
+
+    def rewrite(self, params):
+        pass
 
 
 class Smoothing:
@@ -32,10 +36,12 @@ class Smoothing:
         return image_mod
 
     def rec(self):
-        return "Smoothing:" + "\n\t" "Range: " + "\t" + str(self.range) + "\n"
-
-    def test(self):
-        print(self.name)
+        txt = self.name + "\t"
+        for param in self.params:
+            txt += param + "\t" + self.getval(param) + "\t"
+        return txt
+    def read(self):
+        pass
 
 
 class Median:
@@ -285,12 +291,12 @@ class Edge:
     params = ["method", "const.", "mul. or."]
     params_type = ["combo_box", "entry", "check_box"]
     method_list = [
-            "None",
-            "Sobel_x",
-            "Sobel_y",
-            "Laplacian",
-            "Curvature",
-        ]
+        "None",
+        "Sobel_x",
+        "Sobel_y",
+        "Laplacian",
+        "Curvature",
+    ]
     cal = None
     switch = True
 
@@ -372,7 +378,7 @@ class Edge:
         elif self.method == "Curvature":
             image_mod = self.curvature_formation() * (-1)
 
-        if (self.mul_or == True) or (self.mul_or == "True"):
+        if (self.mul_or is True) or (self.mul_or == "True"):
             image_mul = self.pos_offset(self.image, 1)
             image_mod = image_mod * image_mul
         return image_mod
@@ -387,13 +393,12 @@ class Edge:
             + "\n\t"
             + "constant: "
             + "\t"
-            + str(self.val)
+            + str(self.const)
             + "\n\t"
             + "multiple original: "
             + "\t"
             + str(self.mul_or)
         )
-
 
 
 class Symm:
@@ -403,12 +408,12 @@ class Symm:
     params = ["method"]
     params_type = ["combo_box"]
     method_list = [
-            "None",
-            "mirror_X",
-            "mirror_XY",
-            "six_fold",
-            "six_fold+mirror",
-        ]
+        "None",
+        "mirror_X",
+        "mirror_XY",
+        "six_fold",
+        "six_fold+mirror",
+    ]
     cal = None
     switch = True
 
@@ -419,10 +424,12 @@ class Symm:
         if p_name == "method":
             return self.method
 
+    def get_list(self, name):
+        return self.method_list
+
     def run(self):
         height, width = self.image.shape[:2]
         center = (int(width / 2), int(height / 2))
-
         if self.method == "None":
             image_sym = self.image
         elif self.method == "mirror_XY":
@@ -573,7 +580,7 @@ class Angle:
     switch = True
 
     def rewrite(self, params):
-        self.method = params[0]
+        self.angle = params[0]
 
     def getval(self, p_name):
         if p_name == "angle":
@@ -593,15 +600,6 @@ class Angle:
 
     def rec(self):
         return "Angle:" + "\n\t" + "angle: " + "\t" + str(self.angle) + "\n"
-
-
-
-
-
-
-
-
-
 
 
 class Square:
@@ -640,6 +638,8 @@ class Square:
 
     def rec(self):
         return "Squareize:" + "\n\t" + "on/off: " + "\t" + str(self.on) + "\n"
+    
+    def read(self):
 
 
 class Odd:
@@ -650,7 +650,6 @@ class Odd:
     cal = None
     params_type = ["pass"]
     switch = True
-
 
     def rewrite(self, params):
         self.on = params[0]
@@ -700,7 +699,7 @@ class Average:
 
 
 class Mirror:
-    name = "mirror"
+    name = "Mirror"
     on = None
     params = ["on/off"]
     params_type = ["pass"]
@@ -723,7 +722,7 @@ class Mirror:
 
 
 class Ignore_neg:
-    name = "ignore neg."
+    name = "Ignore neg."
     on = None
     params = ["on/off"]
     params_type = ["pass"]

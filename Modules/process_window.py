@@ -5,6 +5,7 @@ import glob
 import os
 from tkinter import filedialog
 import pathlib
+from Modules.process_classes import ImOpen
 
 
 class P_window:
@@ -102,26 +103,26 @@ class P_window:
     def button_function(self, text, bool, num):
         def inner_function():
             if bool.get():
-                bool.set(True)
-                text.set("ON")
-                self.processes[num].switch = True
-            else:
                 bool.set(False)
                 text.set("OFF")
                 self.processes[num].switch = False
+            else:
+                bool.set(True)
+                text.set("ON")
+                self.processes[num].switch = True
 
         return inner_function
 
     def button_function_FFT(self, text, bool, num):
         def inner_function():
             if bool.get():
-                bool.set(True)
-                text.set("ON")
-                self.processes_FFT[num][-1] = True
-            else:
                 bool.set(False)
                 text.set("OFF")
-                self.processes_FFT[num][-1] = False
+                self.processes_FFT[num].switch = False
+            else:
+                bool.set(True)
+                text.set("ON")
+                self.processes_FFT[num].switch = True
 
         return inner_function
 
@@ -191,7 +192,7 @@ class P_window:
                         variable=var,
                         text="",
                     )
-                if component != None:
+                if component is not None:
                     component.grid(
                         row=start_val + i + 1,
                         column=clm + 1,
@@ -202,7 +203,6 @@ class P_window:
                     )
                     var_list[-1].append(var)
                 clm += 2
-
 
             # on_off switch
             sw_bool = tk.BooleanVar()
@@ -223,7 +223,9 @@ class P_window:
                 command=func,
                 width=3,
             )
-            sw_button.grid(row=i + 3, column=10, padx=1, pady=0, ipadx=0, ipady=0)
+            sw_button.grid(
+                row=start_val + i + 1, column=10, padx=1, pady=0, ipadx=0, ipady=0
+            )
             #
             switch_list.append(sw_bool)
         return check_list, var_list, switch_list
@@ -254,68 +256,65 @@ class P_window:
         )
         FFT_text.grid(row=list_num, column=0, padx=0, pady=0, ipadx=0, ipady=0)
         #
-        if self.FFT_params != []:
-            self.FFT_params_form = False
-            FFT_method_text = tk.Label(
-                self.frame_list, width=10, text="Method", background=color
-            )
-            self.FFT_method_var = tk.StringVar()
-            FFT_method_cb = ttk.Combobox(
-                self.frame_list,
-                textvariable=self.FFT_method_var,
-                width=12,
-                values=self.method_fft_table,
-            )
-            FFT_method_cb.set(self.FFT_params[1])
-            #
-            FFT_window_text = tk.Label(
-                self.frame_list, width=10, text="Window", background=color
-            )
-            self.FFT_window_var = tk.StringVar()
-            FFT_window_cb = ttk.Combobox(
-                self.frame_list,
-                textvariable=self.FFT_window_var,
-                width=12,
-                values=self.window_table,
-            )
-            FFT_window_cb.set(self.FFT_params[2])
 
-            #
+        FFT_method_text = tk.Label(
+            self.frame_list, width=10, text="Method", background=color
+        )
+        self.FFT_method_var = tk.StringVar()
+        FFT_method_cb = ttk.Combobox(
+            self.frame_list,
+            textvariable=self.FFT_method_var,
+            width=12,
+            values=self.method_fft_table,
+        )
+        FFT_method_cb.set(self.fft_func.method)
+        #
+        FFT_window_text = tk.Label(
+            self.frame_list, width=10, text="Window", background=color
+        )
+        self.FFT_window_var = tk.StringVar()
+        FFT_window_cb = ttk.Combobox(
+            self.frame_list,
+            textvariable=self.FFT_window_var,
+            width=12,
+            values=self.window_table,
+        )
+        FFT_window_cb.set(self.fft_func.window_func)
+        #
+        FFT_method_text.grid(
+            row=list_num,
+            column=1,
+            padx=0,
+            pady=0,
+            ipadx=0,
+            ipady=0,
+        )
+        FFT_method_cb.grid(
+            row=list_num,
+            column=2,
+            padx=0,
+            pady=0,
+            ipadx=0,
+            ipady=0,
+        )
+        FFT_window_text.grid(
+            row=list_num,
+            column=3,
+            padx=0,
+            pady=0,
+            ipadx=0,
+            ipady=0,
+        )
+        FFT_window_cb.grid(
+            row=list_num,
+            column=4,
+            padx=0,
+            pady=0,
+            ipadx=0,
+            ipady=0,
+        )
 
-            FFT_method_text.grid(
-                row=self.num_process_real + 3,
-                column=1,
-                padx=0,
-                pady=0,
-                ipadx=0,
-                ipady=0,
-            )
-            FFT_method_cb.grid(
-                row=self.num_process_real + 3,
-                column=2,
-                padx=0,
-                pady=0,
-                ipadx=0,
-                ipady=0,
-            )
-            FFT_window_text.grid(
-                row=self.num_process_real + 3,
-                column=3,
-                padx=0,
-                pady=0,
-                ipadx=0,
-                ipady=0,
-            )
-            FFT_window_cb.grid(
-                row=self.num_process_real + 3,
-                column=4,
-                padx=0,
-                pady=0,
-                ipadx=0,
-                ipady=0,
-            )
-
-        list_num += self.num_process_real
+        list_num += 1
         self.check_list_FFT, self.var_list_FFT, self.swith_list_FFT = self.list_form(
             self.processes_FFT, list_num, "FFT"
         )
@@ -419,21 +418,73 @@ class P_window:
         self.comment.place(x=120, y=405)
 
     def delete_all(self):
-        self.processes = []
-        self.processes_FFT = []
+        self.processes = [self.processes[0]]
+        self.processes_FFT = [self.processes_FFT[0]]
         self.create_frame_datalist()
-        self.val_reset(self.prev_process)
-        self.prev_process = "reset"
-        # self.run_process()
-        # self.show_image()
+        self.run_process()
+
+    def delete_checked(self):
+        self.rewrite_process()
+        for i, chk in enumerate(self.check_list):
+            k = i + 1
+            if chk.get():
+                self.processes[k] = None
+        self.processes = [pro for pro in self.processes if pro is not None]
+        for i, chk in enumerate(self.check_list_FFT):
+            k = i + 1
+            if chk.get():
+                self.processes_FFT[k] = None
+        self.processes_FFT = [pro for pro in self.processes_FFT if pro is not None]
+        self.create_frame_datalist()
+        self.run_process()
+
+    def reload_process(self):
+        self.rewrite_process()
+        self.create_frame_datalist()
+        self.run_process()
+
+    def rewrite_process(self):
+        for i, vars in enumerate(self.var_list):
+            params = [var.get() for var in vars]
+            self.processes[i].rewrite(params)
+        self.fft_func.method = self.FFT_method_var.get()
+        self.fft_func.window_func = self.FFT_window_var.get()
+        for i, vars in enumerate(self.var_list_FFT):
+            params = [var.get() for var in vars]
+            self.processes_FFT[i].rewrite(params)
+
+    def pro_fol_choice_clicked(self):
+        abs_pass = pathlib.Path(
+            filedialog.askdirectory(initialdir=self.dir_name_process)
+        )
+        if abs_pass == pathlib.Path("."):
+            return
+        self.dir_name_process = os.path.relpath(abs_pass, self.init_dir)
+        self.pro_fol_name.delete(0, tk.END)
+        self.pro_fol_name.insert(tk.END, self.dir_name_process)
+        self.reflesh_process_list()
+
+    def reflesh_process_list(self):
+        self.process_list = self.read_process_list(self.dir_name_process)
+        self.choice_process["values"] = self.process_list
+        if len(self.process_list) > 0:
+            self.choice_process.current(0)
+            self.read_process_btn["state"] = tk.NORMAL
+
+    def read_process_list(self, dir_name):
+        process_list = glob.glob(dir_name + "\*")
+        process_list = [os.path.basename(pathname) for pathname in process_list]
+        process_list2 = [file for file in process_list if "process.txt" in file]
+        return process_list2
 
     def read_process_clicked(self):
         data_path = self.dir_name_process + "\\" + self.choice_process.get()
         _ = self.read_process(data_path)
 
+    #########
     def read_process(self, data_path, update=True):
-        self.processes = []
-        self.processes_FFT = []
+        self.processes = [ImOpen()]
+        self.processes_FFT = [ImOpen()]
         FFT_bool = True
         if os.path.isfile(data_path):
             with open(data_path) as f:
@@ -494,46 +545,6 @@ class P_window:
         else:
             return False
 
-    def delete_checked(self):
-        for i, chk in enumerate(self.check_list):
-            if chk.get():
-                self.processes[i] = None
-        self.processes = [pro for pro in self.processes if pro is not None]
-        for i, chk in enumerate(self.check_list_FFT):
-            if chk.get():
-                self.processes_FFT[i] = None
-        self.processes_FFT = [pro for pro in self.processes_FFT if pro is not None]
-        self.create_frame_datalist()
-        self.rewrite_process()
-        if self.im_select:
-            self.val_reset(self.prev_process)
-            # self.run_process()
-            # self.show_image()
-        self.prev_process = "reset"
-
-    def reload_process(self):
-        self.reflesh_btn["state"] = "disable"
-        self.rewrite_process()
-        self.create_frame_datalist()
-        if self.im_select:
-            self.new_process = "Reload"
-            self.process_function()
-            self.val_reset(self.prev_process)
-            # self.run_process()
-            # self.show_image()
-            self.prev_process = "Reload"
-        self.reflesh_btn["state"] = "normal"
-
-    def rewrite_process(self):
-        for i, pro in enumerate(self.process_manage):
-            self.processes[i] = self.replace_process(pro)
-
-        if self.FFT_params != []:
-            self.FFT_params[1] = self.FFT_method_var.get()
-            self.FFT_params[2] = self.FFT_window_var.get()
-        for i, pro in enumerate(self.process_manage_FFT):
-            self.processes_FFT[i] = self.replace_process(pro)
-
     def run_all_exe(self):
         self.prev_rec = False
         for process in self.process_list:
@@ -555,77 +566,3 @@ class P_window:
             if self.im_select:
                 self.run_all_exe()
         self.comment["text"] = "Run all finished"
-
-    def replace_process(self, process):
-        if process[0] == "smoothing":
-            return [process[0], process[1].get(), process[-1].get()]
-        elif process[0] == "median":
-            return [process[0], process[1].get(), process[-1].get()]
-        elif process[0] == "set_contrast":
-            return [process[0], process[1].get(), process[2].get(), process[-1].get()]
-        elif process[0] == "drift":
-            return [process[0], process[1].get(), process[2].get(), process[-1].get()]
-        elif process[0] == "rescale":
-            return [
-                process[0],
-                process[1].get(),
-                process[2].get(),
-                process[3].get(),
-                process[-1].get(),
-            ]
-        elif process[0] == "cut":
-            return [process[0], process[1].get(), process[-1].get()]
-        elif process[0] == "int_change":
-            return [process[0], process[1].get(), process[-1].get()]
-        elif process[0] == "gamma":
-            return [process[0], process[1].get(), process[-1].get()]
-        elif process[0] == "edge_det":
-            return [
-                process[0],
-                process[1].get(),
-                process[2].get(),
-                process[3].get(),
-                process[-1].get(),
-            ]
-        elif process[0] == "square":
-            return [process[0], process[-1].get()]
-        elif process[0] == "oddize":
-            return [process[0], process[-1].get()]
-        elif process[0] == "ave_sub":
-            return [process[0], process[-1].get()]
-        elif process[0] == "mirror":
-            return [process[0], process[-1].get()]
-        elif process[0] == "ignore_neg":
-            return [process[0], process[-1].get()]
-        elif process[0] == "Symm":
-            return [process[0], process[1].get(), process[-1].get()]
-        elif process[0] == "Rot":
-            return [process[0], process[1].get(), process[-1].get()]
-
-    def pro_fol_choice_clicked(self):
-        abs_pass = pathlib.Path(
-            filedialog.askdirectory(initialdir=self.dir_name_process)
-        )
-        if abs_pass == pathlib.Path("."):
-            return
-        self.dir_name_process = os.path.relpath(abs_pass, self.init_dir)
-        self.pro_fol_name.delete(0, tk.END)
-        self.pro_fol_name.insert(tk.END, self.dir_name_process)
-        self.reflesh_process_list()
-        self.manage_process_window.update()
-
-    def read_process_list(self, dir_name):
-        process_list = glob.glob(dir_name + "\*")
-        process_list = [os.path.basename(pathname) for pathname in process_list]
-        process_list2 = [file for file in process_list if "process.txt" in file]
-        return process_list2
-
-    def reflesh_process_list(self):
-        self.process_list = self.read_process_list(self.dir_name_process)
-        self.choice_process["values"] = self.process_list
-        if len(self.process_list) > 0:
-            self.choice_process.current(0)
-            self.read_process_btn["state"] = tk.NORMAL
-
-    def update_process_w(self):
-        self.create_frame_datalist()
