@@ -147,6 +147,11 @@ class Functions:
         self.update_mag()
         self.size_update()
         """
+    def show_image(self):
+        if self.real_shown:
+            self.real_image.show_image()
+        else:
+            self.fft_image.show_image()
 
     def run_process(self):
         image = self.real_image.image_or
@@ -155,7 +160,6 @@ class Functions:
                 pro.image = np.copy(image)
                 image = pro.run()
         self.real_image.image_mod = np.copy(image)
-        self.real_image.show_image()
 
         if self.real_shown is False:
             self.fft_func.image = self.real_image.image_mod
@@ -167,4 +171,5 @@ class Functions:
                     image = pro.run()
             self.fft_image.image_mod = np.copy(image)
             self.fft_image.default_contrast()
-            self.fft_image.show_image()
+        self.show_image()
+

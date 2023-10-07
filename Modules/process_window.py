@@ -6,7 +6,23 @@ import os
 from tkinter import filedialog
 import pathlib
 from Modules.process_classes import ImOpen
-
+from Modules.process_classes import (
+    Smoothing,
+    Median,
+    Drift,
+    Rescale,
+    Cut,
+    Intensity,
+    Gamma,
+    Edge,
+    Square,
+    Odd,
+    Average,
+    Mirror,
+    Ignore_neg,
+    Symm,
+    Angle,
+)
 
 class P_window:
     def manage_process(self):
@@ -481,60 +497,74 @@ class P_window:
         data_path = self.dir_name_process + "\\" + self.choice_process.get()
         _ = self.read_process(data_path)
 
-    #########
     def read_process(self, data_path, update=True):
         self.processes = [ImOpen()]
         self.processes_FFT = [ImOpen()]
-        FFT_bool = True
         if os.path.isfile(data_path):
             with open(data_path) as f:
                 lines = f.readlines()
-                readcheck = False
+                readcheck_real = True
                 readchack_FFT = False
                 for i, line in enumerate(lines):
                     values = line.split()
                     if i == 0:
                         if "Process_record" not in values:
                             return False
-                    process = []
-                    for i in values:
-                        if i == "True":
-                            process.append(True)
-                        elif i == "False":
-                            process.append(False)
-                        else:
-                            process.append(i)
-
                     if "FFT_params:" in values:
-                        FFT_bool = False
-                        self.FFT_params = [values[i] for i in (1, 2, 3)]
-                        if values[4] == "ON":
-                            self.im_type_real = False
+                        self.fft_func.read(values)
 
-                        elif values[4] == "OFF":
-                            self.im_type_real = True
+                        if values[3] == "True":
+                            self.real_shown = False
+                        elif values[3] == "False":
+                            self.real_shown = True
                             self.fft_button["text"] = "Real\r →FFT"
-                            self.setting_real()
+                            # self.setting_real()
 
-                    elif readcheck:
-                        if process != []:
-                            self.processes.append(process)
+                    if values[0] == "Smoothing":
+                        process = Smoothing()
+                    elif values[0] == "Median":
+                        process = Median()
+                    elif values[0] == "Drift":
+                        process = Drift()
+                    elif values[0] == "Rescale":
+                        process = Rescale()
+                    elif values[0] == "Cut":
+                        process = Cut()
+                    elif values[0] == "Intensity":
+                        process = Intensity()
+                    elif values[0] == "Gamma":
+                        process = Gamma()
+                    elif values[0] == "Edge":
+                        process = Edge()
+                    elif values[0] == "Symmetrize":
+                        process = Symm()
+                    elif values[0] == "Angle":
+                        process = Angle()
+                    elif values[0] == "Squarize":
+                        process = Square()
+                    elif values[0] == "Oddize":
+                        process = Odd()
+                    elif values[0] == "Ave. sub.":
+                        process = Average()
+                    elif values[0] == "Mirror":
+                        process = Mirror()
+                    elif values[0] == "Ignore neg.":
+                        process = Ignore_neg()
+                    process.read(values)
+                    if readcheck_real:
+                        self.processes.append(process)
                     elif readchack_FFT:
-                        if process != []:
-                            self.processes_FFT.append(process)
+                        self.processes_FFT.append(process)
                     if "Real_params:" in values:
-                        readcheck = True
+                        readcheck_real = True
                     if "FFT_params:" in values:
-                        readcheck = False
+                        readcheck_real = False
                         readchack_FFT = True
                     if "Name_tag:" in values:
                         self.record_plus.delete(0, tk.END)
                         self.record_plus.insert(tk.END, values[1])
                         self.name_change = True
-            if FFT_bool:
-                self.im_type_real = True
-                self.fft_button["text"] = "Real\r →FFT"
-                self.setting_real()
+
             if update:
                 self.create_frame_datalist()
             # self.rewrite_process()
@@ -566,3 +596,6 @@ class P_window:
             if self.im_select:
                 self.run_all_exe()
         self.comment["text"] = "Run all finished"
+
+    def update_process_w(self):
+        self.create_frame_datalist()

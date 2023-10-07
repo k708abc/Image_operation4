@@ -74,6 +74,7 @@ class MyImage:
     lower = 0
     data_path = None
     channel_name = None
+    channel_val = None
     x_mag = 1
     y_mag = 1
     open_bool = False
@@ -114,7 +115,7 @@ class MyImage:
 
     def sm4_getdata(self):
         sm4data_set = rhksm4.load(self.data_path)
-        sm4data_im = sm4data_set[self.channel_name]
+        sm4data_im = sm4data_set[self.channel_val]
         image_data = sm4data_im.data
         image_data = image_data.astype(np.float32)
         scan_params = [
@@ -393,3 +394,16 @@ class FFT:
         fft_image = fft_image.astype(np.float32)
         fft_image = self.cut_center(fft_image)
         return fft_image
+    
+    def rec(self, real_shown):
+        if real_shown is True:
+            txt = "FFT_params:" + "\t" + self.fft_func.method + "\t" + self.fft_func.window_func + "\t" + "False" + "\n"
+        else:
+            txt = "FFT_params:" + "\t" + self.fft_func.method + "\t" + self.fft_func.window_func + "\t" + "True" + "\n"
+        return txt
+
+
+    def read(self, values):
+        self.window_func = values[2]
+        self.method = values[1]
+

@@ -74,7 +74,8 @@ class Events:
 
     def image_open(self):
         self.real_image.data_path = self.image_list.dir_name + "\\" + self.choice.get()
-        self.real_image.channel_name = self.imtype_choice.current()
+        self.real_image.channel_val = self.imtype_choice.current()
+        self.real_image.channel_name =  self.imtype_choice.get()
         self.real_image.read_image()
         self.run_process()
         self.update_after_show()
@@ -560,5 +561,4 @@ class Events:
 
     def rec_text(self):
         self.run_process()
-        self.show_image()
         self.recording_text()

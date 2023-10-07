@@ -33,12 +33,12 @@ class Recording:
             f.write(self.record.get() + self.record_plus.get() + "\n")
             f.write("Image_name:" + "\t" + self.real_image.data_path + "\n")
             f.write("Channel:" + "\t" + self.real_image.channel_name + "\n\n")
-            f.write("Orizinal_size_X:" + "\t" + self.real_image.x_or + "\n")
-            f.write("Orizinal_size_Y:" + "\t" + self.real_image.y_or + "\n")
+            f.write("Orizinal_size_X:" + "\t" + str(self.real_image.x_or) + "\n")
+            f.write("Orizinal_size_Y:" + "\t" + str(self.real_image.y_or) + "\n")
 
             if self.real_shown:
-                f.write("Current_size_X:" + "\t" + self.real_image.x_current + "\n")
-                f.write("Current_size_Y:" + "\t" + self.real_image.x_current + "\n")
+                f.write("Current_size_X:" + "\t" + str(self.real_image.x_current) + "\n")
+                f.write("Current_size_Y:" + "\t" + str(self.real_image.x_current) + "\n")
                 f.write(
                     "Pixcel_X" + "\t" + str(self.real_image.image_show.shape[1]) + "\n"
                 )
@@ -47,8 +47,8 @@ class Recording:
                 )
                 f.write("data_type:" + "\t" + "Real" + "\n")
             else:
-                f.write("Current_size_X:" + "\t" + self.fft_image.x_current + "\n")
-                f.write("Current_size_Y:" + "\t" + self.fft_image.x_current + "\n")
+                f.write("Current_size_X:" + "\t" + str(self.fft_image.x_current) + "\n")
+                f.write("Current_size_Y:" + "\t" + str(self.fft_image.x_current) + "\n")
                 f.write(
                     "Pixcel_X" + "\t" + str(self.fft_image.image_show.shape[1]) + "\n"
                 )
@@ -56,7 +56,7 @@ class Recording:
                     "Pixcel_Y" + "\t" + str(self.fft_image.image_show.shape[0]) + "\n"
                 )
                 f.write("data_type:" + "\t" + "FFT" + "\n")
-            f.write("STM_bias:" + "\t" + self.real_image.params[2] + "\n\n")
+            f.write("STM_bias:" + "\t" + str(self.real_image.params[2]) + "\n\n")
             #
             f.write("Data:" + "\n")
             if self.real_shown:
@@ -100,16 +100,10 @@ class Recording:
             f.write("\n")
 
             if self.fft_func.image is not None:
-                f.write("FFT_params:" + "\t")
-                f.write(self.fft_func.method + "\t")
-                f.write(self.fft_func.window_func + "\t")
-                if self.real_shown:
-                    f.write("OFF")
-                else:
-                    f.write("ON")
-                f.write("\n")
+                f.write(self.fft_func.rec(self.real_shown))
                 for pro in self.processes_FFT:
                     f.write(pro.rec())
+
 
     def rec_image(self):
         if self.dirdiv_bool.get():
@@ -132,6 +126,6 @@ class Recording:
                 + ".bmp"
             )
         if self.real_shown:
-            cv2.imwrite(img_name, self.real_image.image_show())
+            cv2.imwrite(img_name, self.real_image.image_show)
         else:
-            cv2.imwrite(img_name, self.fft_image.image_show())
+            cv2.imwrite(img_name, self.fft_image.image_show)

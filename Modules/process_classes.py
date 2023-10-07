@@ -15,6 +15,12 @@ class ImOpen:
     def rewrite(self, params):
         pass
 
+    def rec(self):
+        return ""
+    
+    def read(self, vals):
+        pass
+
 
 class Smoothing:
     name = "Smoothing"
@@ -39,9 +45,17 @@ class Smoothing:
         txt = self.name + "\t"
         for param in self.params:
             txt += param + "\t" + self.getval(param) + "\t"
+        txt += self.switch
         return txt
-    def read(self):
-        pass
+    
+    def read(self, vals):
+        for i in range(len(vals)):
+            if vals[i] == self.params[0]:
+                self.range = int(vals[i + 1])
+        if vals[-1] == "True":
+            self.swith = True
+        elif vals[-1] == "False":
+            self.swith = False
 
 
 class Median:
@@ -64,7 +78,20 @@ class Median:
         return image_mod
 
     def rec(self):
-        return "Median:" + "\n\t" "Range: " + "\t" + str(self.range) + "\n"
+        txt = self.name + "\t"
+        for param in self.params:
+            txt += param + "\t" + self.getval(param) + "\t"
+        txt += self.switch
+        return txt
+    
+    def read(self, vals):
+        for i in range(len(vals)):
+            if vals[i] == self.params[0]:
+                self.range = int(vals[i + 1])
+        if vals[-1] == "True":
+            self.swith = True
+        elif vals[-1] == "False":
+            self.swith = False
 
 
 class Drift:
@@ -117,19 +144,22 @@ class Drift:
         return im_crop
 
     def rec(self):
-        return (
-            "Drift:"
-            + "\n\t"
-            + "x: "
-            + "\t"
-            + str(self.x)
-            + "\n\t"
-            + "y: "
-            + "\t"
-            + str(self.y)
-            + "\n"
-        )
-
+        txt = self.name + "\t"
+        for param in self.params:
+            txt += param + "\t" + self.getval(param) + "\t"
+        txt += self.switch
+        return txt
+    
+    def read(self, vals):
+        for i in range(len(vals)):
+            if vals[i] == self.params[0]:
+                self.x = int(vals[i + 1])
+            if vals[i] == self.params[1]:
+                self.y = int(vals[i + 1])
+        if vals[-1] == "True":
+            self.swith = True
+        elif vals[-1] == "False":
+            self.swith = False
 
 class Rescale:
     name = "Rescale"
@@ -163,19 +193,24 @@ class Rescale:
         return modified_image
 
     def rec(self):
-        return (
-            "Rescale:"
-            + "\n\t"
-            + "size_x: "
-            + "\t"
-            + str(int(self.x))
-            + "\n\t"
-            + "size_y: "
-            + "\t"
-            + str(int(self.y))
-            + "\n"
-        )
-
+        txt = self.name + "\t"
+        for param in self.params:
+            txt += param + "\t" + self.getval(param) + "\t"
+        txt += self.switch
+        return txt
+    
+    def read(self, vals):
+        for i in range(len(vals)):
+            if vals[i] == self.params[0]:
+                self.all = float(vals[i + 1])
+            if vals[i] == self.params[1]:
+                self.x = int(vals[i + 1])
+            if vals[i] == self.params[2]:
+                self.y = int(vals[i + 1])
+        if vals[-1] == "True":
+            self.swith = True
+        elif vals[-1] == "False":
+            self.swith = False
 
 class Cut:
     name = "Cut"
@@ -205,9 +240,22 @@ class Cut:
                 diff_h : height - diff_h, diff_w : width - diff_w
             ]
             return image_cropped
-
+        
     def rec(self):
-        return "Cut:" + "\n\t" + "ratio: " + "\t" + str(int(self.ratio)) + "\n"
+        txt = self.name + "\t"
+        for param in self.params:
+            txt += param + "\t" + self.getval(param) + "\t"
+        txt += self.switch
+        return txt
+    
+    def read(self, vals):
+        for i in range(len(vals)):
+            if vals[i] == self.params[0]:
+                self.ratio = float(vals[i + 1])
+        if vals[-1] == "True":
+            self.swith = True
+        elif vals[-1] == "False":
+            self.swith = False
 
 
 class Intensity:
@@ -254,7 +302,20 @@ class Intensity:
         return image_mod
 
     def rec(self):
-        return "Intensity:" + "\n\t" + "method: " + "\t" + str(self.method) + "\n"
+        txt = self.name + "\t"
+        for param in self.params:
+            txt += param + "\t" + self.getval(param) + "\t"
+        txt += self.switch
+        return txt
+    
+    def read(self, vals):
+        for i in range(len(vals)):
+            if vals[i] == self.params[0]:
+                self.method = vals[i + 1]
+        if vals[-1] == "True":
+            self.swith = True
+        elif vals[-1] == "False":
+            self.swith = False
 
 
 class Gamma:
@@ -279,8 +340,20 @@ class Gamma:
         return image_mod
 
     def rec(self):
-        return "Gamma:" + "\n\t" + "val: " + "\t" + str(self.val) + "\n"
-
+        txt = self.name + "\t"
+        for param in self.params:
+            txt += param + "\t" + self.getval(param) + "\t"
+        txt += self.switch
+        return txt
+    
+    def read(self, vals):
+        for i in range(len(vals)):
+            if vals[i] == self.params[0]:
+                self.val = float(vals[i + 1])
+        if vals[-1] == "True":
+            self.swith = True
+        elif vals[-1] == "False":
+            self.swith = False
 
 class Edge:
     name = "Edge"
@@ -384,22 +457,24 @@ class Edge:
         return image_mod
 
     def rec(self):
-        return (
-            "Edge detection:"
-            + "\n\t"
-            + "method: "
-            + "\t"
-            + str(self.method)
-            + "\n\t"
-            + "constant: "
-            + "\t"
-            + str(self.const)
-            + "\n\t"
-            + "multiple original: "
-            + "\t"
-            + str(self.mul_or)
-        )
-
+        txt = self.name + "\t"
+        for param in self.params:
+            txt += param + "\t" + self.getval(param) + "\t"
+        txt += self.switch
+        return txt
+    
+    def read(self, vals):
+        for i in range(len(vals)):
+            if vals[i] == self.params[0]:
+                self.method = vals[i + 1]
+            if vals[i] == self.params[1]:
+                self.const = float(vals[i + 1])
+            if vals[i] == self.params[2]:
+                self.mul_or = bool(vals[i + 1])
+        if vals[-1] == "True":
+            self.swith = True
+        elif vals[-1] == "False":
+            self.swith = False
 
 class Symm:
     name = "Symmetrize"
@@ -567,7 +642,20 @@ class Symm:
         return image_sym
 
     def rec(self):
-        return "Symmetrize:" + "\n\t" + "method: " + "\t" + str(self.method) + "\n"
+        txt = self.name + "\t"
+        for param in self.params:
+            txt += param + "\t" + self.getval(param) + "\t"
+        txt += self.switch
+        return txt
+    
+    def read(self, vals):
+        for i in range(len(vals)):
+            if vals[i] == self.params[0]:
+                self.method = vals[i + 1]
+        if vals[-1] == "True":
+            self.swith = True
+        elif vals[-1] == "False":
+            self.swith = False
 
 
 class Angle:
@@ -599,7 +687,20 @@ class Angle:
         return r_image
 
     def rec(self):
-        return "Angle:" + "\n\t" + "angle: " + "\t" + str(self.angle) + "\n"
+        txt = self.name + "\t"
+        for param in self.params:
+            txt += param + "\t" + self.getval(param) + "\t"
+        txt += self.switch
+        return txt
+    
+    def read(self, vals):
+        for i in range(len(vals)):
+            if vals[i] == self.params[0]:
+                self.angle = float(vals[i + 1])
+        if vals[-1] == "True":
+            self.swith = True
+        elif vals[-1] == "False":
+            self.swith = False
 
 
 class Square:
@@ -637,9 +738,20 @@ class Square:
         return image
 
     def rec(self):
-        return "Squareize:" + "\n\t" + "on/off: " + "\t" + str(self.on) + "\n"
+        txt = self.name + "\t"
+        for param in self.params:
+            txt += param + "\t" + self.getval(param) + "\t"
+        txt += self.switch
+        return txt
     
-    def read(self):
+    def read(self, vals):
+        for i in range(len(vals)):
+            if vals[i] == self.params[0]:
+                self.on = bool(vals[i + 1])
+        if vals[-1] == "True":
+            self.swith = True
+        elif vals[-1] == "False":
+            self.swith = False
 
 
 class Odd:
@@ -668,8 +780,20 @@ class Odd:
         return image_odd
 
     def rec(self):
-        return "Oddize:" + "\n\t" + "on/off: " + "\t" + str(self.on) + "\n"
-
+        txt = self.name + "\t"
+        for param in self.params:
+            txt += param + "\t" + self.getval(param) + "\t"
+        txt += self.switch
+        return txt
+    
+    def read(self, vals):
+        for i in range(len(vals)):
+            if vals[i] == self.params[0]:
+                self.on = bool(vals[i + 1])
+        if vals[-1] == "True":
+            self.swith = True
+        elif vals[-1] == "False":
+            self.swith = False
 
 class Average:
     name = "Ave. sub."
@@ -695,8 +819,20 @@ class Average:
         return image_sub
 
     def rec(self):
-        return "Average subtraction:" + "\n\t" + "on/off: " + "\t" + str(self.on) + "\n"
-
+        txt = self.name + "\t"
+        for param in self.params:
+            txt += param + "\t" + self.getval(param) + "\t"
+        txt += self.switch
+        return txt
+    
+    def read(self, vals):
+        for i in range(len(vals)):
+            if vals[i] == self.params[0]:
+                self.on = bool(vals[i + 1])
+        if vals[-1] == "True":
+            self.swith = True
+        elif vals[-1] == "False":
+            self.swith = False
 
 class Mirror:
     name = "Mirror"
@@ -718,8 +854,20 @@ class Mirror:
         return m_image
 
     def rec(self):
-        return "Mirror:" + "\n\t" + "on/off: " + "\t" + str(self.on) + "\n"
-
+        txt = self.name + "\t"
+        for param in self.params:
+            txt += param + "\t" + self.getval(param) + "\t"
+        txt += self.switch
+        return txt
+    
+    def read(self, vals):
+        for i in range(len(vals)):
+            if vals[i] == self.params[0]:
+                self.on = bool(vals[i + 1])
+        if vals[-1] == "True":
+            self.swith = True
+        elif vals[-1] == "False":
+            self.swith = False
 
 class Ignore_neg:
     name = "Ignore neg."
@@ -741,4 +889,17 @@ class Ignore_neg:
         return image_mod
 
     def rec(self):
-        return "Ignore negative:" + "\n\t" + "on/off: " + "\t" + str(self.on) + "\n"
+        txt = self.name + "\t"
+        for param in self.params:
+            txt += param + "\t" + self.getval(param) + "\t"
+        txt += self.switch
+        return txt
+    
+    def read(self, vals):
+        for i in range(len(vals)):
+            if vals[i] == self.params[0]:
+                self.on = bool(vals[i + 1])
+        if vals[-1] == "True":
+            self.swith = True
+        elif vals[-1] == "False":
+            self.swith = False
