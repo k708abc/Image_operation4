@@ -44,18 +44,18 @@ class Smoothing:
     def rec(self):
         txt = self.name + "\t"
         for param in self.params:
-            txt += param + "\t" + self.getval(param) + "\t"
-        txt += self.switch
+            txt += param + "\t" + str(self.getval(param)) + "\t"
+        txt += str(self.switch)
         return txt
     
     def read(self, vals):
         for i in range(len(vals)):
             if vals[i] == self.params[0]:
-                self.range = int(vals[i + 1])
+                self.range = int(float(vals[i + 1]))
         if vals[-1] == "True":
-            self.swith = True
+            self.switch = True
         elif vals[-1] == "False":
-            self.swith = False
+            self.switch = False
 
 
 class Median:
@@ -80,8 +80,8 @@ class Median:
     def rec(self):
         txt = self.name + "\t"
         for param in self.params:
-            txt += param + "\t" + self.getval(param) + "\t"
-        txt += self.switch
+            txt += param + "\t" + str(self.getval(param)) + "\t"
+        txt += str(self.switch)
         return txt
     
     def read(self, vals):
@@ -89,9 +89,9 @@ class Median:
             if vals[i] == self.params[0]:
                 self.range = int(vals[i + 1])
         if vals[-1] == "True":
-            self.swith = True
+            self.switch = True
         elif vals[-1] == "False":
-            self.swith = False
+            self.switch = False
 
 
 class Drift:
@@ -146,8 +146,8 @@ class Drift:
     def rec(self):
         txt = self.name + "\t"
         for param in self.params:
-            txt += param + "\t" + self.getval(param) + "\t"
-        txt += self.switch
+            txt += param + "\t" + str(self.getval(param)) + "\t"
+        txt += str(self.switch)
         return txt
     
     def read(self, vals):
@@ -157,9 +157,9 @@ class Drift:
             if vals[i] == self.params[1]:
                 self.y = int(vals[i + 1])
         if vals[-1] == "True":
-            self.swith = True
+            self.switch = True
         elif vals[-1] == "False":
-            self.swith = False
+            self.switch = False
 
 class Rescale:
     name = "Rescale"
@@ -195,8 +195,8 @@ class Rescale:
     def rec(self):
         txt = self.name + "\t"
         for param in self.params:
-            txt += param + "\t" + self.getval(param) + "\t"
-        txt += self.switch
+            txt += param + "\t" + str(self.getval(param)) + "\t"
+        txt += str(self.switch)
         return txt
     
     def read(self, vals):
@@ -208,9 +208,9 @@ class Rescale:
             if vals[i] == self.params[2]:
                 self.y = int(vals[i + 1])
         if vals[-1] == "True":
-            self.swith = True
+            self.switch = True
         elif vals[-1] == "False":
-            self.swith = False
+            self.switch = False
 
 class Cut:
     name = "Cut"
@@ -244,8 +244,8 @@ class Cut:
     def rec(self):
         txt = self.name + "\t"
         for param in self.params:
-            txt += param + "\t" + self.getval(param) + "\t"
-        txt += self.switch
+            txt += param + "\t" + str(self.getval(param)) + "\t"
+        txt += str(self.switch)
         return txt
     
     def read(self, vals):
@@ -253,9 +253,9 @@ class Cut:
             if vals[i] == self.params[0]:
                 self.ratio = float(vals[i + 1])
         if vals[-1] == "True":
-            self.swith = True
+            self.switch = True
         elif vals[-1] == "False":
-            self.swith = False
+            self.switch = False
 
 
 class Intensity:
@@ -304,8 +304,8 @@ class Intensity:
     def rec(self):
         txt = self.name + "\t"
         for param in self.params:
-            txt += param + "\t" + self.getval(param) + "\t"
-        txt += self.switch
+            txt += param + "\t" + str(self.getval(param)) + "\t"
+        txt += str(self.switch)
         return txt
     
     def read(self, vals):
@@ -313,9 +313,9 @@ class Intensity:
             if vals[i] == self.params[0]:
                 self.method = vals[i + 1]
         if vals[-1] == "True":
-            self.swith = True
+            self.switch = True
         elif vals[-1] == "False":
-            self.swith = False
+            self.switch = False
 
 
 class Gamma:
@@ -342,8 +342,8 @@ class Gamma:
     def rec(self):
         txt = self.name + "\t"
         for param in self.params:
-            txt += param + "\t" + self.getval(param) + "\t"
-        txt += self.switch
+            txt += param + "\t" + str(self.getval(param)) + "\t"
+        txt += str(self.switch)
         return txt
     
     def read(self, vals):
@@ -351,9 +351,9 @@ class Gamma:
             if vals[i] == self.params[0]:
                 self.val = float(vals[i + 1])
         if vals[-1] == "True":
-            self.swith = True
+            self.switch = True
         elif vals[-1] == "False":
-            self.swith = False
+            self.switch = False
 
 class Edge:
     name = "Edge"
@@ -459,8 +459,8 @@ class Edge:
     def rec(self):
         txt = self.name + "\t"
         for param in self.params:
-            txt += param + "\t" + self.getval(param) + "\t"
-        txt += self.switch
+            txt += param + "\t" + str(self.getval(param)) + "\t"
+        txt += str(self.switch)
         return txt
     
     def read(self, vals):
@@ -472,9 +472,9 @@ class Edge:
             if vals[i] == self.params[2]:
                 self.mul_or = bool(vals[i + 1])
         if vals[-1] == "True":
-            self.swith = True
+            self.switch = True
         elif vals[-1] == "False":
-            self.swith = False
+            self.switch = False
 
 class Symm:
     name = "Symmetrize"
@@ -644,8 +644,8 @@ class Symm:
     def rec(self):
         txt = self.name + "\t"
         for param in self.params:
-            txt += param + "\t" + self.getval(param) + "\t"
-        txt += self.switch
+            txt += param + "\t" + str(self.getval(param)) + "\t"
+        txt += str(self.switch)
         return txt
     
     def read(self, vals):
@@ -653,9 +653,9 @@ class Symm:
             if vals[i] == self.params[0]:
                 self.method = vals[i + 1]
         if vals[-1] == "True":
-            self.swith = True
+            self.switch = True
         elif vals[-1] == "False":
-            self.swith = False
+            self.switch = False
 
 
 class Angle:
@@ -689,8 +689,8 @@ class Angle:
     def rec(self):
         txt = self.name + "\t"
         for param in self.params:
-            txt += param + "\t" + self.getval(param) + "\t"
-        txt += self.switch
+            txt += param + "\t" + str(self.getval(param) )+ "\t"
+        txt += str(self.switch)
         return txt
     
     def read(self, vals):
@@ -698,9 +698,9 @@ class Angle:
             if vals[i] == self.params[0]:
                 self.angle = float(vals[i + 1])
         if vals[-1] == "True":
-            self.swith = True
+            self.switch = True
         elif vals[-1] == "False":
-            self.swith = False
+            self.switch = False
 
 
 class Square:
@@ -740,8 +740,8 @@ class Square:
     def rec(self):
         txt = self.name + "\t"
         for param in self.params:
-            txt += param + "\t" + self.getval(param) + "\t"
-        txt += self.switch
+            txt += param + "\t" + str(self.getval(param)) + "\t"
+        txt += str(self.switch)
         return txt
     
     def read(self, vals):
@@ -749,9 +749,9 @@ class Square:
             if vals[i] == self.params[0]:
                 self.on = bool(vals[i + 1])
         if vals[-1] == "True":
-            self.swith = True
+            self.switch = True
         elif vals[-1] == "False":
-            self.swith = False
+            self.switch = False
 
 
 class Odd:
@@ -782,8 +782,8 @@ class Odd:
     def rec(self):
         txt = self.name + "\t"
         for param in self.params:
-            txt += param + "\t" + self.getval(param) + "\t"
-        txt += self.switch
+            txt += param + "\t" + str(self.getval(param)) + "\t"
+        txt += str(self.switch)
         return txt
     
     def read(self, vals):
@@ -791,9 +791,9 @@ class Odd:
             if vals[i] == self.params[0]:
                 self.on = bool(vals[i + 1])
         if vals[-1] == "True":
-            self.swith = True
+            self.switch = True
         elif vals[-1] == "False":
-            self.swith = False
+            self.switch = False
 
 class Average:
     name = "Ave. sub."
@@ -821,8 +821,8 @@ class Average:
     def rec(self):
         txt = self.name + "\t"
         for param in self.params:
-            txt += param + "\t" + self.getval(param) + "\t"
-        txt += self.switch
+            txt += param + "\t" + str(self.getval(param)) + "\t"
+        txt += str(self.switch)
         return txt
     
     def read(self, vals):
@@ -830,9 +830,9 @@ class Average:
             if vals[i] == self.params[0]:
                 self.on = bool(vals[i + 1])
         if vals[-1] == "True":
-            self.swith = True
+            self.switch = True
         elif vals[-1] == "False":
-            self.swith = False
+            self.switch = False
 
 class Mirror:
     name = "Mirror"
@@ -856,8 +856,8 @@ class Mirror:
     def rec(self):
         txt = self.name + "\t"
         for param in self.params:
-            txt += param + "\t" + self.getval(param) + "\t"
-        txt += self.switch
+            txt += param + "\t" + str(self.getval(param)) + "\t"
+        txt += str(self.switch)
         return txt
     
     def read(self, vals):
@@ -865,9 +865,9 @@ class Mirror:
             if vals[i] == self.params[0]:
                 self.on = bool(vals[i + 1])
         if vals[-1] == "True":
-            self.swith = True
+            self.switch = True
         elif vals[-1] == "False":
-            self.swith = False
+            self.switch = False
 
 class Ignore_neg:
     name = "Ignore neg."
@@ -891,8 +891,8 @@ class Ignore_neg:
     def rec(self):
         txt = self.name + "\t"
         for param in self.params:
-            txt += param + "\t" + self.getval(param) + "\t"
-        txt += self.switch
+            txt += param + "\t" + str(self.getval(param)) + "\t"
+        txt += str(self.switch)
         return txt
     
     def read(self, vals):
@@ -900,6 +900,6 @@ class Ignore_neg:
             if vals[i] == self.params[0]:
                 self.on = bool(vals[i + 1])
         if vals[-1] == "True":
-            self.swith = True
+            self.switch = True
         elif vals[-1] == "False":
-            self.swith = False
+            self.switch = False

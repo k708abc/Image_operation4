@@ -507,6 +507,9 @@ class P_window:
                 readchack_FFT = False
                 for i, line in enumerate(lines):
                     values = line.split()
+                    if len(values) == 0:
+                        continue
+                    process = None
                     if i == 0:
                         if "Process_record" not in values:
                             return False
@@ -519,7 +522,6 @@ class P_window:
                             self.real_shown = True
                             self.fft_button["text"] = "Real\r →FFT"
                             # self.setting_real()
-
                     if values[0] == "Smoothing":
                         process = Smoothing()
                     elif values[0] == "Median":
@@ -550,11 +552,12 @@ class P_window:
                         process = Mirror()
                     elif values[0] == "Ignore neg.":
                         process = Ignore_neg()
-                    process.read(values)
-                    if readcheck_real:
-                        self.processes.append(process)
-                    elif readchack_FFT:
-                        self.processes_FFT.append(process)
+                    if process is not None:
+                        process.read(values)
+                        if readcheck_real:
+                            self.processes.append(process)
+                        elif readchack_FFT:
+                            self.processes_FFT.append(process)
                     if "Real_params:" in values:
                         readcheck_real = True
                     if "FFT_params:" in values:
@@ -568,7 +571,7 @@ class P_window:
             if update:
                 self.create_frame_datalist()
             # self.rewrite_process()
-            if self.im_select:
+            if self.real_image.open_bool:
                 self.run_process()
                 self.show_image()
             return True
