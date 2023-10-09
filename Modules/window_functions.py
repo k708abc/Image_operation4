@@ -148,25 +148,60 @@ class Functions:
     def show_image(self):
         if self.real_shown:
             self.real_image.show_image()
+            self.update_size_real()
         else:
             self.fft_image.show_image()
+            self.update_size_fft()
+        if self.manage_bool:
+            self.update_process_w()
+
+    def update_size_real(self):
+        self.current_x["text"] = str(round(self.real_image.x_current, 2))
+        self.current_y["text"] = str(round(self.real_image.y_current, 2))
+        py, px = self.real_image.image_mod.shape[:2]
+        self.current_pxx["text"] = "(" + str(px) + " px)"
+        self.current_pxy["text"] = "(" + str(py) + " px)"
+        #self.master.update()
+
+    def update_size_fft(self):
+        self.current_x["text"] = str(round(self.fft_image.x_current, 2))
+        self.current_y["text"] = str(round(self.fft_image.y_current, 2))
+        py, px = self.fft_image.image_mod.shape[:2]
+        self.current_pxx["text"] = "(" + str(px) + " px)"
+        self.current_pxy["text"] = "(" + str(py) + " px)"
+        #self.master.update()
+
 
     def run_process(self):
         image = self.real_image.image_or
+        mag_x = 1
+        mag_y = 1
         for pro in self.processes:
             if pro.switch:
                 pro.image = np.copy(image)
                 image = pro.run()
+                mag_x *= pro.mag_rate_x
+                mag_y *= pro.mag_rate_y
         self.real_image.image_mod = np.copy(image)
+        self.real_image.mag_update((mag_x, mag_y))
 
         if self.real_shown is False:
             self.fft_func.image = self.real_image.image_mod
+            self.fft_func.size_real_x = self.real_image.x_current
+            self.fft_func.size_real_y = self.real_image.y_current
             image = self.fft_func.run()
             self.fft_image.image_or = np.copy(image)
+            self.fft_image.x_or = self.fft_func.x_size
+            self.fft_image.y_or = self.fft_func.y_size
+            mag_fft_x = 1
+            mag_fft_y = 1
             for pro in self.processes_FFT:
                 if pro.switch:
                     pro.image = np.copy(image)
                     image = pro.run()
+                    mag_fft_x *= pro.mag_rate_x
+                    mag_fft_y *= pro.mag_rate_y
             self.fft_image.image_mod = np.copy(image)
+            self.fft_image.mag_update((mag_fft_x, mag_fft_y))
             self.fft_image.default_contrast()
         self.show_image()

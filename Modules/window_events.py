@@ -133,6 +133,17 @@ class Events:
             self.fft_image.line_method = self.method_line_cb.get()
             self.fft_image.show_image()
 
+
+    def show_real_image(self):
+        self.real_image.image_mod = np.copy(self.processes[-1].run())
+        self.real_image.mag_update(self.processes[-1].mag_update())
+        self.show_image()
+
+    def show_fft_image(self):
+        self.fft_image.image_mod = self.processes_FFT[-1].run()
+        self.fft_image.mag_update(self.processes_FFT[-1].mag_update())
+        self.show_image()
+
     def smooth_process(self, process_list):
         if process_list[-1].name == "Smoothing":
             process_list[-1].range = float(self.smooth_entry.get())
@@ -141,6 +152,7 @@ class Events:
             val = Smoothing()
             val.range = float(self.smooth_entry.get())
             val.image = process_list[-1].run()
+            val.prev_mag_x, val.prev_mag_y = process_list[-1].mag_update()
             process_list.append(val)
         return process_list
 
@@ -149,14 +161,11 @@ class Events:
             self.smooth_entry.insert(tk.END, "0")
         if self.real_shown:
             self.processes = self.smooth_process(self.processes)
-            self.real_image.image_mod = np.copy(self.processes[-1].run())
-            self.real_image.show_image()
+            self.show_real_image()
         else:
             self.processes_FFT = self.smooth_process(self.processes_FFT)
-            self.fft_image.image_mod = self.processes_FFT[-1].run()
-            self.fft_image.show_image()
-        if self.manage_bool:
-            self.update_process_w()
+            self.show_fft_image()
+
 
     def median_process(self, process_list):
         if process_list[-1].name == "Median":
@@ -166,6 +175,7 @@ class Events:
             val = Median()
             val.range = float(self.median_entry.get())
             val.image = process_list[-1].run()
+            val.prev_mag_x, val.prev_mag_y = process_list[-1].mag_update()
             process_list.append(val)
         return process_list
 
@@ -174,14 +184,11 @@ class Events:
             self.median_entry.insert(tk.END, "0")
         if self.real_shown:
             self.processes = self.median_process(self.processes)
-            self.real_image.image_mod = self.processes[-1].run()
-            self.real_image.show_image()
+            self.show_real_image()
         else:
             self.processes_FFT = self.median_process(self.processes_FFT)
-            self.fft_image.image_mod = self.processes_FFT[-1].run()
-            self.fft_image.show_image()
-        if self.manage_bool:
-            self.update_process_w()
+            self.show_fft_image()
+
 
     def drift_process(self, process_list):
         if process_list[-1].name == "Drift":
@@ -193,20 +200,17 @@ class Events:
             val.x = float(self.drift_dx.get())
             val.y = float(self.drift_dy.get())
             val.image = process_list[-1].run()
+            val.prev_mag_x, val.prev_mag_y = process_list[-1].mag_update()
             process_list.append(val)
         return process_list
 
     def drift_val_change(self, event):
         if self.real_shown:
             self.processes = self.drift_process(self.processes)
-            self.real_image.image_mod = self.processes[-1].run()
-            self.real_image.show_image()
+            self.show_real_image()
         else:
             self.processes_FFT = self.dfift_process(self.processes_FFT)
-            self.fft_image.image_mod = self.processes_FFT[-1].run()
-            self.fft_image.show_image()
-        if self.manage_bool:
-            self.update_process_w()
+            self.show_fft_image()
 
     def drift_function(self):
         if self.drift_cb.current() == 0:
@@ -228,20 +232,17 @@ class Events:
             val.x = float(self.rescale_x.get())
             val.y = float(self.rescale_y.get())
             val.image = process_list[-1].run()
+            val.prev_mag_x, val.prev_mag_y = process_list[-1].mag_update()
             process_list.append(val)
         return process_list
 
     def rescale(self, event):
         if self.real_shown:
             self.processes = self.rescale_process(self.processes)
-            self.real_image.image_mod = self.processes[-1].run()
-            self.real_image.show_image()
+            self.show_real_image()
         else:
             self.processes_FFT = self.rescale_process(self.processes_FFT)
-            self.fft_image.image_mod = self.processes_FFT[-1].run()
-            self.fft_image.show_image()
-        if self.manage_bool:
-            self.update_process_w()
+            self.show_fft_image()
 
     def cut_process(self, process_list):
         if process_list[-1].name == "Cut":
@@ -251,20 +252,17 @@ class Events:
             val = Cut()
             val.ratio = float(self.cut_entry.get())
             val.image = process_list[-1].run()
+            val.prev_mag_x, val.prev_mag_y = process_list[-1].mag_update()
             process_list.append(val)
         return process_list
 
     def cut_image(self, event):
         if self.real_shown:
             self.processes = self.cut_process(self.processes)
-            self.real_image.image_mod = self.processes[-1].run()
-            self.real_image.show_image()
+            self.show_real_image()
         else:
             self.processes_FFT = self.cut_process(self.processes_FFT)
-            self.fft_image.image_mod = self.processes_FFT[-1].run()
-            self.fft_image.show_image()
-        if self.manage_bool:
-            self.update_process_w()
+            self.show_fft_image()
 
     def int_process(self, process_list):
         if process_list[-1].name == "Intensity":
@@ -274,20 +272,17 @@ class Events:
             val = Intensity()
             val.method = self.int_cb.get()
             val.image = process_list[-1].run()
+            val.prev_mag_x, val.prev_mag_y = process_list[-1].mag_update()
             process_list.append(val)
         return process_list
 
     def int_cb_selected(self, event):
         if self.real_shown:
             self.processes = self.int_process(self.processes)
-            self.real_image.image_mod = self.processes[-1].run()
-            self.real_image.show_image()
+            self.show_real_image()
         else:
             self.processes_FFT = self.int_process(self.processes_FFT)
-            self.fft_image.image_mod = self.processes_FFT[-1].run()
-            self.fft_image.show_image()
-        if self.manage_bool:
-            self.update_process_w()
+            self.show_fft_image()
 
     def gamma_process(self, process_list):
         if process_list[-1].name == "Gamma":
@@ -297,20 +292,17 @@ class Events:
             val = Gamma()
             val.val = float(self.int_entry.get())
             val.image = process_list[-1].run()
+            val.prev_mag_x, val.prev_mag_y = process_list[-1].mag_update()
             process_list.append(val)
         return process_list
 
     def int_gamma_change(self, event):
         if self.real_shown:
             self.processes = self.gamma_process(self.processes)
-            self.real_image.image_mod = self.processes[-1].run()
-            self.real_image.show_image()
+            self.show_real_image()
         else:
             self.processes_FFT = self.gamma_process(self.processes_FFT)
-            self.fft_image.image_mod = self.processes_FFT[-1].run()
-            self.fft_image.show_image()
-        if self.manage_bool:
-            self.update_process_w()
+            self.show_fft_image()
 
     def edge_process(self, process_list):
         if process_list[-1].name == "Edge":
@@ -324,20 +316,17 @@ class Events:
             val.const = self.edge_entry.get()
             val.mul_or = self.mulor_bool.get()
             val.image = process_list[-1].run()
+            val.prev_mag_x, val.prev_mag_y = process_list[-1].mag_update()
             process_list.append(val)
         return process_list
 
     def edge_change(self, event=None):
         if self.real_shown:
             self.processes = self.edge_process(self.processes)
-            self.real_image.image_mod = self.processes[-1].run()
-            self.real_image.show_image()
+            self.show_real_image()
         else:
             self.processes_FFT = self.edge_process(self.processes_FFT)
-            self.fft_image.image_mod = self.processes_FFT[-1].run()
-            self.fft_image.show_image()
-        if self.manage_bool:
-            self.update_process_w()
+            self.show_fft_image()
 
     def symm_process(self, process_list):
         if process_list[-1].name == "Symmetrize":
@@ -347,20 +336,18 @@ class Events:
             val = Symm()
             val.method = self.method_symmetrize_cb.get()
             val.image = process_list[-1].run()
+            val.prev_mag_x, val.prev_mag_y = process_list[-1].mag_update()
             process_list.append(val)
         return process_list
 
     def cb_symmetrize_selected(self, event):
         if self.real_shown:
             self.processes = self.symm_process(self.processes)
-            self.real_image.image_mod = self.processes[-1].run()
-            self.real_image.show_image()
+            self.show_real_image()
         else:
             self.processes_FFT = self.symm_process(self.processes_FFT)
-            self.fft_image.image_mod = self.processes_FFT[-1].run()
-            self.fft_image.show_image()
-        if self.manage_bool:
-            self.update_process_w()
+            self.show_fft_image()
+
 
     def angle_process(self, process_list):
         if process_list[-1].name == "Angle":
@@ -370,20 +357,17 @@ class Events:
             val = Angle()
             val.angle = float(self.symm_angle_entry.get())
             val.image = process_list[-1].run()
+            val.prev_mag_x, val.prev_mag_y = process_list[-1].mag_update()
             process_list.append(val)
         return process_list
 
     def angle_return(self, event=None):
         if self.real_shown:
             self.processes = self.angle_process(self.processes)
-            self.real_image.image_mod = self.processes[-1].run()
-            self.real_image.show_image()
+            self.show_real_image()
         else:
             self.processes_FFT = self.angle_process(self.processes_FFT)
-            self.fft_image.image_mod = self.processes_FFT[-1].run()
-            self.fft_image.show_image()
-        if self.manage_bool:
-            self.update_process_w()
+            self.show_fft_image()
 
     def angle_up(self, event):
         angle = float(self.symm_angle_entry.get()) + 1
@@ -405,20 +389,17 @@ class Events:
             val = Square()
             val.on = self.square_bool.get()
             val.image = process_list[-1].run()
+            val.prev_mag_x, val.prev_mag_y = process_list[-1].mag_update()
             process_list.append(val)
         return process_list
 
     def square_image(self):
         if self.real_shown:
             self.processes = self.square_process(self.processes)
-            self.real_image.image_mod = self.processes[-1].run()
-            self.real_image.show_image()
+            self.show_real_image()
         else:
             self.processes_FFT = self.square_process(self.processes_FFT)
-            self.fft_image.image_mod = self.processes_FFT[-1].run()
-            self.fft_image.show_image()
-        if self.manage_bool:
-            self.update_process_w()
+            self.show_fft_image()
 
     def odd_process(self, process_list):
         if process_list[-1].name == "Oddize":
@@ -428,20 +409,17 @@ class Events:
             val = Odd()
             val.on = self.oddize_bool.get()
             val.image = process_list[-1].run()
+            val.prev_mag_x, val.prev_mag_y = process_list[-1].mag_update()
             process_list.append(val)
         return process_list
 
     def oddize_image(self):
         if self.real_shown:
             self.processes = self.odd_process(self.processes)
-            self.real_image.image_mod = self.processes[-1].run()
-            self.real_image.show_image()
+            self.show_real_image()
         else:
             self.processes_FFT = self.odd_process(self.processes_FFT)
-            self.fft_image.image_mod = self.processes_FFT[-1].run()
-            self.fft_image.show_image()
-        if self.manage_bool:
-            self.update_process_w()
+            self.show_fft_image()
 
     def ave_process(self, process_list):
         if process_list[-1].name == "Ave. sub.":
@@ -451,20 +429,17 @@ class Events:
             val = Average()
             val.on = self.average_bool.get()
             val.image = process_list[-1].run()
+            val.prev_mag_x, val.prev_mag_y = process_list[-1].mag_update()
             process_list.append(val)
         return process_list
 
     def average_image(self):
         if self.real_shown:
             self.processes = self.ave_process(self.processes)
-            self.real_image.image_mod = self.processes[-1].run()
-            self.real_image.show_image()
+            self.show_real_image()
         else:
             self.processes_FFT = self.ave_process(self.processes_FFT)
-            self.fft_image.image_mod = self.processes_FFT[-1].run()
-            self.fft_image.show_image()
-        if self.manage_bool:
-            self.update_process_w()
+            self.show_fft_image()
 
     def mirror_process(self, process_list):
         if process_list[-1].name == "mirror":
@@ -474,20 +449,17 @@ class Events:
             val = Mirror()
             val.on = self.mirror_bool.get()
             val.image = process_list[-1].run()
+            val.prev_mag_x, val.prev_mag_y = process_list[-1].mag_update()
             process_list.append(val)
         return process_list
 
     def mirror_image(self):
         if self.real_shown:
             self.processes = self.mirror_process(self.processes)
-            self.real_image.image_mod = self.processes[-1].run()
-            self.real_image.show_image()
+            self.show_real_image()
         else:
             self.processes_FFT = self.mirror_process(self.processes_FFT)
-            self.fft_image.image_mod = self.processes_FFT[-1].run()
-            self.fft_image.show_image()
-        if self.manage_bool:
-            self.update_process_w()
+            self.show_fft_image()
 
     def igneg_process(self, process_list):
         if process_list[-1].name == "ignore neg.":
@@ -497,20 +469,17 @@ class Events:
             val = Ignore_neg()
             val.on = self.ignore_neg_bool.get()
             val.image = process_list[-1].run()
+            val.prev_mag_x, val.prev_mag_y = process_list[-1].mag_update()
             process_list.append(val)
         return process_list
 
     def ignore_neg_image(self):
         if self.real_shown:
             self.processes = self.igneg_process(self.processes)
-            self.real_image.image_mod = self.processes[-1].run()
-            self.real_image.show_image()
+            self.show_real_image()
         else:
             self.processes_FFT = self.igneg_process(self.processes_FFT)
-            self.fft_image.image_mod = self.processes_FFT[-1].run()
-            self.fft_image.show_image()
-        if self.manage_bool:
-            self.update_process_w()
+            self.show_fft_image()
 
     def original_size_changed(self, event):
         self.current_size_update()

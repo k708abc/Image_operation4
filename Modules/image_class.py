@@ -83,14 +83,24 @@ class MyImage:
     color_num = 0
     line_method = None
     params = None  # x, y, bias
-    x_current = None
-    y_current = None
+
+    @property
+    def x_current(self):
+        return self.x_or*self.x_mag
+    
+    @property
+    def y_current(self):
+        return self.y_or*self.y_mag
 
     def initialize(self):
         self.upper = 255
         self.lower = 0
         self.x_mag = 1
         self.y_mag = 1
+
+    def mag_update(self, val):
+        self.x_mag = val[0]
+        self.y_mag = val[1]
 
     def read_image(self):
         self.image_or, self.params = self.get_image_values()
@@ -324,6 +334,10 @@ class FFT:
     image_mod = None
     method_table = ["Linear", "Sqrt", "Log"]
     window_table = ["None", "hann", "hamming", "blackman"]
+    size_real_x = None
+    size_real_y = None
+    x_size = None
+    y_size = None
 
     def datatype_change(self, image):
         maximum = np.max(image)
@@ -393,6 +407,7 @@ class FFT:
         fft_image = self.fft_scaling(fft_image)
         fft_image = fft_image.astype(np.float32)
         fft_image = self.cut_center(fft_image)
+        
         return fft_image
 
     def rec(self, real_shown):
