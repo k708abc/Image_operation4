@@ -26,7 +26,6 @@ class Functions:
         self.processes_FFT = [ImOpen()]
         self.manage_bool = False
         self.name_change = False
-        self.bias_change = False
 
     def record_name_base(self):
         if self.name_change is False:
@@ -67,10 +66,8 @@ class Functions:
         self.original_y.insert(tk.END, self.real_image.params[1])
         self.orpix_x["text"] = "(" + str(self.real_image.x_or) + " px)"
         self.orpix_y["text"] = "(" + str(self.real_image.y_or) + " px)"
-        if self.bias_change:
-            self.bias.delete(0, tk.END)
-            self.bias.insert(tk.END, round(self.real_image.params[2] * 1000, 2))
-        self.bias_change = False
+        self.bias.delete(0, tk.END)
+        self.bias.insert(tk.END, round(self.real_image.params[2] * 1000, 2))
 
     def val_reset(self, name):
         if name == "Smoothing":
@@ -147,6 +144,7 @@ class Functions:
         self.update_mag()
         self.size_update()
         """
+
     def show_image(self):
         if self.real_shown:
             self.real_image.show_image()
@@ -172,4 +170,3 @@ class Functions:
             self.fft_image.image_mod = np.copy(image)
             self.fft_image.default_contrast()
         self.show_image()
-

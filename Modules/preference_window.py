@@ -22,6 +22,7 @@ class Window(ttk.Frame):
         self.create_frame_size()
         self.create_frame_bias()
         self.create_frame_fft()
+        self.create_frame_profile()
         self.create_frame_record()
         self.create_frame_buttons()
         self.master = master
@@ -492,6 +493,17 @@ class Window(ttk.Frame):
         self.window_cb.current(0)
         self.window_text = ttk.Label(self.frame_fft, text="Window")
         #
+
+    def create_frame_profile(self):
+        self.frame_profile = ttk.Frame()
+        self.create_widgets_profile()
+        self.create_layout_profile()
+        self.frame_profile.pack()
+
+    def create_widgets_profile(self):
+        self.profile_button = tk.Button(
+            self.frame_profile, text="Profiling", command=self.profile_clicked, width=30
+        )
 
     def create_frame_record(self):
         self.frame_record = ttk.Frame()

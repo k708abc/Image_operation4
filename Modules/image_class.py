@@ -394,16 +394,41 @@ class FFT:
         fft_image = fft_image.astype(np.float32)
         fft_image = self.cut_center(fft_image)
         return fft_image
-    
+
     def rec(self, real_shown):
         if real_shown is True:
-            txt = "FFT_params:" + "\t" + self.fft_func.method + "\t" + self.fft_func.window_func + "\t" + "False" + "\n"
+            txt = (
+                "FFT_params:"
+                + "\t"
+                + self.fft_func.method
+                + "\t"
+                + self.fft_func.window_func
+                + "\t"
+                + "False"
+                + "\n"
+            )
         else:
-            txt = "FFT_params:" + "\t" + self.fft_func.method + "\t" + self.fft_func.window_func + "\t" + "True" + "\n"
+            txt = (
+                "FFT_params:"
+                + "\t"
+                + self.fft_func.method
+                + "\t"
+                + self.fft_func.window_func
+                + "\t"
+                + "True"
+                + "\n"
+            )
         return txt
-
 
     def read(self, values):
         self.window_func = values[2]
         self.method = values[1]
 
+
+class Profiling:
+    image = None
+    size_x = None
+    size_y = None
+
+    def run(self):
+        pass

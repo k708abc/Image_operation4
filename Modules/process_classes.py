@@ -17,7 +17,7 @@ class ImOpen:
 
     def rec(self):
         return ""
-    
+
     def read(self, vals):
         pass
 
@@ -47,7 +47,7 @@ class Smoothing:
             txt += param + "\t" + str(self.getval(param)) + "\t"
         txt += str(self.switch)
         return txt
-    
+
     def read(self, vals):
         for i in range(len(vals)):
             if vals[i] == self.params[0]:
@@ -83,7 +83,7 @@ class Median:
             txt += param + "\t" + str(self.getval(param)) + "\t"
         txt += str(self.switch)
         return txt
-    
+
     def read(self, vals):
         for i in range(len(vals)):
             if vals[i] == self.params[0]:
@@ -149,7 +149,7 @@ class Drift:
             txt += param + "\t" + str(self.getval(param)) + "\t"
         txt += str(self.switch)
         return txt
-    
+
     def read(self, vals):
         for i in range(len(vals)):
             if vals[i] == self.params[0]:
@@ -160,6 +160,7 @@ class Drift:
             self.switch = True
         elif vals[-1] == "False":
             self.switch = False
+
 
 class Rescale:
     name = "Rescale"
@@ -198,7 +199,7 @@ class Rescale:
             txt += param + "\t" + str(self.getval(param)) + "\t"
         txt += str(self.switch)
         return txt
-    
+
     def read(self, vals):
         for i in range(len(vals)):
             if vals[i] == self.params[0]:
@@ -211,6 +212,7 @@ class Rescale:
             self.switch = True
         elif vals[-1] == "False":
             self.switch = False
+
 
 class Cut:
     name = "Cut"
@@ -240,14 +242,14 @@ class Cut:
                 diff_h : height - diff_h, diff_w : width - diff_w
             ]
             return image_cropped
-        
+
     def rec(self):
         txt = self.name + "\t"
         for param in self.params:
             txt += param + "\t" + str(self.getval(param)) + "\t"
         txt += str(self.switch)
         return txt
-    
+
     def read(self, vals):
         for i in range(len(vals)):
             if vals[i] == self.params[0]:
@@ -307,7 +309,7 @@ class Intensity:
             txt += param + "\t" + str(self.getval(param)) + "\t"
         txt += str(self.switch)
         return txt
-    
+
     def read(self, vals):
         for i in range(len(vals)):
             if vals[i] == self.params[0]:
@@ -345,7 +347,7 @@ class Gamma:
             txt += param + "\t" + str(self.getval(param)) + "\t"
         txt += str(self.switch)
         return txt
-    
+
     def read(self, vals):
         for i in range(len(vals)):
             if vals[i] == self.params[0]:
@@ -354,6 +356,7 @@ class Gamma:
             self.switch = True
         elif vals[-1] == "False":
             self.switch = False
+
 
 class Edge:
     name = "Edge"
@@ -462,7 +465,7 @@ class Edge:
             txt += param + "\t" + str(self.getval(param)) + "\t"
         txt += str(self.switch)
         return txt
-    
+
     def read(self, vals):
         for i in range(len(vals)):
             if vals[i] == self.params[0]:
@@ -475,6 +478,7 @@ class Edge:
             self.switch = True
         elif vals[-1] == "False":
             self.switch = False
+
 
 class Symm:
     name = "Symmetrize"
@@ -647,7 +651,7 @@ class Symm:
             txt += param + "\t" + str(self.getval(param)) + "\t"
         txt += str(self.switch)
         return txt
-    
+
     def read(self, vals):
         for i in range(len(vals)):
             if vals[i] == self.params[0]:
@@ -689,10 +693,10 @@ class Angle:
     def rec(self):
         txt = self.name + "\t"
         for param in self.params:
-            txt += param + "\t" + str(self.getval(param) )+ "\t"
+            txt += param + "\t" + str(self.getval(param)) + "\t"
         txt += str(self.switch)
         return txt
-    
+
     def read(self, vals):
         for i in range(len(vals)):
             if vals[i] == self.params[0]:
@@ -743,7 +747,7 @@ class Square:
             txt += param + "\t" + str(self.getval(param)) + "\t"
         txt += str(self.switch)
         return txt
-    
+
     def read(self, vals):
         for i in range(len(vals)):
             if vals[i] == self.params[0]:
@@ -785,7 +789,7 @@ class Odd:
             txt += param + "\t" + str(self.getval(param)) + "\t"
         txt += str(self.switch)
         return txt
-    
+
     def read(self, vals):
         for i in range(len(vals)):
             if vals[i] == self.params[0]:
@@ -794,6 +798,7 @@ class Odd:
             self.switch = True
         elif vals[-1] == "False":
             self.switch = False
+
 
 class Average:
     name = "Ave. sub."
@@ -824,7 +829,7 @@ class Average:
             txt += param + "\t" + str(self.getval(param)) + "\t"
         txt += str(self.switch)
         return txt
-    
+
     def read(self, vals):
         for i in range(len(vals)):
             if vals[i] == self.params[0]:
@@ -833,6 +838,7 @@ class Average:
             self.switch = True
         elif vals[-1] == "False":
             self.switch = False
+
 
 class Mirror:
     name = "Mirror"
@@ -859,7 +865,7 @@ class Mirror:
             txt += param + "\t" + str(self.getval(param)) + "\t"
         txt += str(self.switch)
         return txt
-    
+
     def read(self, vals):
         for i in range(len(vals)):
             if vals[i] == self.params[0]:
@@ -868,6 +874,7 @@ class Mirror:
             self.switch = True
         elif vals[-1] == "False":
             self.switch = False
+
 
 class Ignore_neg:
     name = "Ignore neg."
@@ -894,7 +901,7 @@ class Ignore_neg:
             txt += param + "\t" + str(self.getval(param)) + "\t"
         txt += str(self.switch)
         return txt
-    
+
     def read(self, vals):
         for i in range(len(vals)):
             if vals[i] == self.params[0]:

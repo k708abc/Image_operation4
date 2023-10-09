@@ -119,6 +119,11 @@ class Layouts:
         self.window_text.grid(row=1, column=3, **self.padWE)
         self.window_cb.grid(row=1, column=4, **self.padWE)
 
+    def create_layout_profile(self):
+        self.profile_button.grid(
+            columnspan=3, rowspan=2, row=0, column=0, sticky=tk.N + tk.S
+        )
+
     def create_layout_record(self):
         self.fol_choice_text_record.grid(row=0, column=0, **self.padWE)
         self.rec_fol_name.grid(columnspan=2, row=0, column=1, **self.padWE)

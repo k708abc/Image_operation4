@@ -75,7 +75,7 @@ class Events:
     def image_open(self):
         self.real_image.data_path = self.image_list.dir_name + "\\" + self.choice.get()
         self.real_image.channel_val = self.imtype_choice.current()
-        self.real_image.channel_name =  self.imtype_choice.get()
+        self.real_image.channel_name = self.imtype_choice.get()
         self.real_image.read_image()
         self.run_process()
         self.update_after_show()
@@ -515,6 +515,16 @@ class Events:
     def original_size_changed(self, event):
         self.current_size_update()
 
+    def setting_fft(self):
+        self.current_size_text["text"] = "Current size (nm-1)"
+        self.fft_button["text"] = "FFT → real"
+        self.record_name_fft()
+
+    def setting_real(self):
+        self.current_size_text["text"] = "Current size (nm)"
+        self.fft_button["text"] = "Real → FFT"
+        self.record_name_real()
+
     def fft_process(self):
         pass
 
@@ -522,8 +532,10 @@ class Events:
         if self.real_shown:
             self.real_shown = False
             self.fft_image.open_bool = True
+            self.setting_fft()
         else:
             self.real_shown = True
+            self.setting_real()
         self.fft_func.method = self.method_fft_cb.get()
         self.fft_func.window_func = self.window_cb.get()
         self.run_process()
@@ -535,6 +547,9 @@ class Events:
     def cb_window_selected(self, event):
         self.fft_func.window = self.window_cb.get()
         self.run_process()
+
+    def profile_clicked(self):
+        pass
 
     def rec_fol_choice_clicked(self):
         self.rec_fol = False

@@ -19,3 +19,11 @@ if __name__ == "__main__":
     application = tk.Tk()
     app = App(application)
     app.run()
+    """
+    メモ
+    各機能の確認
+    サイズ更新
+    ラインプロファイル
+    FFTでのドリフト更生　正確に
+    各機能を個別ファイルにまとめる
+    """
