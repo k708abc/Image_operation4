@@ -407,7 +407,7 @@ class FFT:
         fft_image = self.fft_scaling(fft_image)
         fft_image = fft_image.astype(np.float32)
         fft_image = self.cut_center(fft_image)
-        
+        size_calculation
         return fft_image
 
     def rec(self, real_shown):
