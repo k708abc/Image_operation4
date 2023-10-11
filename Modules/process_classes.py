@@ -14,7 +14,7 @@ class ImOpen:
     mag_rate_y = 1
 
     def mag_update(self):
-        return [self.prev_mag_x*self.mag_rate_x, self.prev_mag_y*self.mag_rate_y]
+        return [self.prev_mag_x * self.mag_rate_x, self.prev_mag_y * self.mag_rate_y]
 
     def run(self):
         return self.image
@@ -42,7 +42,7 @@ class Smoothing:
     mag_rate_y = 1
 
     def mag_update(self):
-        return self.prev_mag_x*self.mag_rate_x, self.prev_mag_y*self.mag_rate_y
+        return self.prev_mag_x * self.mag_rate_x, self.prev_mag_y * self.mag_rate_y
 
     def rewrite(self, params):
         self.range = params[0]
@@ -85,7 +85,7 @@ class Median:
     mag_rate_y = 1
 
     def mag_update(self):
-        return [self.prev_mag_x*self.mag_rate_x, self.prev_mag_y*self.mag_rate_y]
+        return [self.prev_mag_x * self.mag_rate_x, self.prev_mag_y * self.mag_rate_y]
 
     def rewrite(self, params):
         self.range = params[0]
@@ -131,7 +131,7 @@ class Drift:
     mag_rate_y = 1
 
     def mag_update(self):
-        return [self.prev_mag_x*self.mag_rate_x, self.prev_mag_y*self.mag_rate_y]
+        return [self.prev_mag_x * self.mag_rate_x, self.prev_mag_y * self.mag_rate_y]
 
     def rewrite(self, params):
         self.x = params[0]
@@ -169,8 +169,8 @@ class Drift:
         ymax = int(max(by, by + ay, ay))
         # crop the image
         im_crop = affine_img[y0:ymax, x0:xmax]
-        self.mag_rate_x = (xmax-x0)/ps_x
-        self.mag_rate_y = (ymax-y0)/ps_y
+        self.mag_rate_x = (xmax - x0) / ps_x
+        self.mag_rate_y = (ymax - y0) / ps_y
         return im_crop
 
     def rec(self):
@@ -208,7 +208,7 @@ class Rescale:
     mag_rate_y = 1
 
     def mag_update(self):
-        return [self.prev_mag_x*self.mag_rate_x, self.prev_mag_y*self.mag_rate_y]
+        return [self.prev_mag_x * self.mag_rate_x, self.prev_mag_y * self.mag_rate_y]
 
     def rewrite(self, params):
         self.all = params[0]
@@ -267,7 +267,7 @@ class Cut:
     mag_rate_y = 1
 
     def mag_update(self):
-        return [self.prev_mag_x*self.mag_rate_x, self.prev_mag_y*self.mag_rate_y]
+        return [self.prev_mag_x * self.mag_rate_x, self.prev_mag_y * self.mag_rate_y]
 
     def rewrite(self, params):
         self.ratio = params[0]
@@ -289,8 +289,8 @@ class Cut:
             image_cropped = self.image[
                 diff_h : height - diff_h, diff_w : width - diff_w
             ]
-            self.mag_rate_x = 2*diff_w/width
-            self.mag_rate_y = 2*diff_h/height
+            self.mag_rate_x = 2 * diff_w / width
+            self.mag_rate_y = 2 * diff_h / height
             return image_cropped
 
     def rec(self):
@@ -325,7 +325,7 @@ class Intensity:
     mag_rate_y = 1
 
     def mag_update(self):
-        return [self.prev_mag_x*self.mag_rate_x, self.prev_mag_y*self.mag_rate_y]
+        return [self.prev_mag_x * self.mag_rate_x, self.prev_mag_y * self.mag_rate_y]
 
     def get_list(self, name):
         return self.method_list
@@ -391,7 +391,7 @@ class Gamma:
     mag_rate_y = 1
 
     def mag_update(self):
-        return [self.prev_mag_x*self.mag_rate_x, self.prev_mag_y*self.mag_rate_y]
+        return [self.prev_mag_x * self.mag_rate_x, self.prev_mag_y * self.mag_rate_y]
 
     def rewrite(self, params):
         self.val = params[0]
@@ -445,7 +445,7 @@ class Edge:
     mag_rate_y = 1
 
     def mag_update(self):
-        return [self.prev_mag_x*self.mag_rate_x, self.prev_mag_y*self.mag_rate_y]
+        return [self.prev_mag_x * self.mag_rate_x, self.prev_mag_y * self.mag_rate_y]
 
     def get_list(self, name):
         return self.method_list
@@ -572,7 +572,7 @@ class Symm:
     mag_rate_y = 1
 
     def mag_update(self):
-        return [self.prev_mag_x*self.mag_rate_x, self.prev_mag_y*self.mag_rate_y]
+        return [self.prev_mag_x * self.mag_rate_x, self.prev_mag_y * self.mag_rate_y]
 
     def rewrite(self, params):
         self.method = params[0]
@@ -754,7 +754,7 @@ class Angle:
     mag_rate_y = 1
 
     def mag_update(self):
-        return [self.prev_mag_x*self.mag_rate_x, self.prev_mag_y*self.mag_rate_y]
+        return [self.prev_mag_x * self.mag_rate_x, self.prev_mag_y * self.mag_rate_y]
 
     def rewrite(self, params):
         self.angle = params[0]
@@ -806,7 +806,7 @@ class Square:
     mag_rate_y = 1
 
     def mag_update(self):
-        return [self.prev_mag_x*self.mag_rate_x, self.prev_mag_y*self.mag_rate_y]
+        return [self.prev_mag_x * self.mag_rate_x, self.prev_mag_y * self.mag_rate_y]
 
     def rewrite(self, params):
         self.on = params[0]
@@ -827,16 +827,16 @@ class Square:
             image = self.image[
                 center[1] - diff : center[1] + diff, center[0] - diff : center[0] + diff
             ]
-            self.mag_rate_x = 2*diff/width
-            self.mag_rate_y = 2*diff/height
+            self.mag_rate_x = 2 * diff / width
+            self.mag_rate_y = 2 * diff / height
         else:
             center = (int(width / 2), int(height / 2))
             diff = int(height / 2)
             image = self.image[
                 center[1] - diff : center[1] + diff, center[0] - diff : center[0] + diff
             ]
-            self.mag_rate_x = 2*diff/width
-            self.mag_rate_y = 2*diff/height
+            self.mag_rate_x = 2 * diff / width
+            self.mag_rate_y = 2 * diff / height
         return image
 
     def rec(self):
@@ -870,7 +870,7 @@ class Odd:
     mag_rate_y = 1
 
     def mag_update(self):
-        return [self.prev_mag_x*self.mag_rate_x, self.prev_mag_y*self.mag_rate_y]
+        return [self.prev_mag_x * self.mag_rate_x, self.prev_mag_y * self.mag_rate_y]
 
     def rewrite(self, params):
         self.on = params[0]
@@ -919,7 +919,7 @@ class Average:
     mag_rate_y = 1
 
     def mag_update(self):
-        return [self.prev_mag_x*self.mag_rate_x, self.prev_mag_y*self.mag_rate_y]
+        return [self.prev_mag_x * self.mag_rate_x, self.prev_mag_y * self.mag_rate_y]
 
     def rewrite(self, params):
         self.on = params[0]
@@ -965,7 +965,7 @@ class Mirror:
     mag_rate_y = 1
 
     def mag_update(self):
-        return [self.prev_mag_x*self.mag_rate_x, self.prev_mag_y*self.mag_rate_y]
+        return [self.prev_mag_x * self.mag_rate_x, self.prev_mag_y * self.mag_rate_y]
 
     def rewrite(self, params):
         self.on = params[0]
@@ -1008,7 +1008,8 @@ class Ignore_neg:
     mag_rate_y = 1
 
     def mag_update(self):
-        return [self.prev_mag_x*self.mag_rate_x, self.prev_mag_y*self.mag_rate_y]
+        return [self.prev_mag_x * self.mag_rate_x, self.prev_mag_y * self.mag_rate_y]
+
     def rewrite(self, params):
         self.on = params[0]
 

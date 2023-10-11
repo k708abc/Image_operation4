@@ -68,8 +68,10 @@ class MyImage:
     image_mod = None
     image_cad = None
     image_show = None
-    x_or = None
-    y_or = None
+    x_pix_or = None
+    y_pix_or = None
+    x_size_or = None
+    y_size_or = None
     upper = 255
     lower = 0
     data_path = None
@@ -81,16 +83,21 @@ class MyImage:
     max_contrast = 255
     min_contrast = 0
     color_num = 0
+    bias = None
+    image_name = "Target"
+    mouse_on = False
+    mouse_x = 0
+    mouse_y = 0
     line_method = None
-    params = None  # x, y, bias
+    line_points = []
 
     @property
     def x_current(self):
-        return self.x_or*self.x_mag
-    
+        return self.x_size_or * self.x_mag
+
     @property
     def y_current(self):
-        return self.y_or*self.y_mag
+        return self.y_size_or * self.y_mag
 
     def initialize(self):
         self.upper = 255
@@ -104,7 +111,10 @@ class MyImage:
 
     def read_image(self):
         self.image_or, self.params = self.get_image_values()
-        self.y_or, self.x_or = self.image_or.shape[:2]
+        self.x_size_or = self.params[0]
+        self.y_size_or = self.params[1]
+        self.bias = self.params[2]
+        self.y_pix_or, self.x_pix_or = self.image_or.shape[:2]
         self.open_bool = True
         self.image_mod = np.copy(self.image_or)
         self.default_contrast()
@@ -186,15 +196,32 @@ class MyImage:
         else:
             return False, False
 
-    def show_image(self):
+    def show_image(
+        self,
+    ):
         if self.open_bool:
             self.contrast_adjust()
             self.contrast_change()
             self.draw_line()
             self.color_change()
-            # self.size_update()
-            # self.pix_update()
-            cv2.imshow("Target", self.image_show)
+            if self.mouse_on:
+                cv2.namedWindow(self.image_name)
+                cv2.setMouseCallback(self.image_name, self.mouse_event)
+                self.draw_point()
+            cv2.imshow(self.image_name, self.image_show)
+
+    def draw_point(self):
+        self.color_change()
+        self.image_show = cv2.circle(
+            self.image_show, (self.mouse_x, self.mouse_y), 2, (0, 0, 255), -1
+        )
+
+    def mouse_event(self, event, x, y, flags, param):
+        if event == cv2.EVENT_LBUTTONUP:
+            self.mouse_x = x
+            self.mouse_y = y
+            self.draw_point()
+            cv2.imshow(self.image_name, self.image_show)
 
     def contrast_adjust(self):
         image = (
@@ -306,6 +333,14 @@ class MyImage:
                 color_line,
                 1,
             )
+        for points in self.line_points:
+            cv2.line(
+                self.image_cad,
+                (points[0][0], points[0][1]),
+                (points[1][0], points[1][1]),
+                color_line,
+                1,
+            )
 
     def color_change(self):
         if self.color_num == 0:
@@ -325,6 +360,10 @@ class MyImage:
         if self.open_bool:
             self.max_contrast = np.max(self.image_mod)
             self.min_contrast = np.min(self.image_mod)
+
+    def des_image(self):
+        cv2.destroyWindow(self.image_name)
+        self.open_bool = False
 
 
 class FFT:
@@ -407,17 +446,22 @@ class FFT:
         fft_image = self.fft_scaling(fft_image)
         fft_image = fft_image.astype(np.float32)
         fft_image = self.cut_center(fft_image)
-        size_calculation
+        self.cal_fft_size()
         return fft_image
+
+    def cal_fft_size(self):
+        height, width = self.image.shape[:2]
+        self.x_size = 1 / self.size_real_x * width
+        self.y_size = 1 / self.size_real_y * height
 
     def rec(self, real_shown):
         if real_shown is True:
             txt = (
                 "FFT_params:"
                 + "\t"
-                + self.fft_func.method
+                + self.method
                 + "\t"
-                + self.fft_func.window_func
+                + self.window_func
                 + "\t"
                 + "False"
                 + "\n"
@@ -426,9 +470,9 @@ class FFT:
             txt = (
                 "FFT_params:"
                 + "\t"
-                + self.fft_func.method
+                + self.method
                 + "\t"
-                + self.fft_func.window_func
+                + self.window_func
                 + "\t"
                 + "True"
                 + "\n"

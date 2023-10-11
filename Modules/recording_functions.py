@@ -33,12 +33,16 @@ class Recording:
             f.write(self.record.get() + self.record_plus.get() + "\n")
             f.write("Image_name:" + "\t" + self.real_image.data_path + "\n")
             f.write("Channel:" + "\t" + self.real_image.channel_name + "\n\n")
-            f.write("Orizinal_size_X:" + "\t" + str(self.real_image.x_or) + "\n")
-            f.write("Orizinal_size_Y:" + "\t" + str(self.real_image.y_or) + "\n")
+            f.write("Orizinal_size_X:" + "\t" + str(self.real_image.x_size_or) + "\n")
+            f.write("Orizinal_size_Y:" + "\t" + str(self.real_image.y_size_or) + "\n")
 
             if self.real_shown:
-                f.write("Current_size_X:" + "\t" + str(self.real_image.x_current) + "\n")
-                f.write("Current_size_Y:" + "\t" + str(self.real_image.x_current) + "\n")
+                f.write(
+                    "Current_size_X:" + "\t" + str(self.real_image.x_current) + "\n"
+                )
+                f.write(
+                    "Current_size_Y:" + "\t" + str(self.real_image.x_current) + "\n"
+                )
                 f.write(
                     "Pixcel_X" + "\t" + str(self.real_image.image_show.shape[1]) + "\n"
                 )
@@ -56,7 +60,7 @@ class Recording:
                     "Pixcel_Y" + "\t" + str(self.fft_image.image_show.shape[0]) + "\n"
                 )
                 f.write("data_type:" + "\t" + "FFT" + "\n")
-            f.write("STM_bias:" + "\t" + str(self.real_image.params[2]) + "\n\n")
+            f.write("STM_bias:" + "\t" + str(self.real_image.bias) + "\n\n")
             #
             f.write("Data:" + "\n")
             if self.real_shown:
@@ -103,7 +107,6 @@ class Recording:
                 f.write(self.fft_func.rec(self.real_shown))
                 for pro in self.processes_FFT:
                     f.write(pro.rec())
-
 
     def rec_image(self):
         if self.dirdiv_bool.get():

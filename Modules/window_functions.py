@@ -61,13 +61,13 @@ class Functions:
         self.record_name_base()
         self.record_name_real()
         self.original_x.delete(0, tk.END)
-        self.original_x.insert(tk.END, self.real_image.params[0])
+        self.original_x.insert(tk.END, self.real_image.x_size_or)
         self.original_y.delete(0, tk.END)
-        self.original_y.insert(tk.END, self.real_image.params[1])
-        self.orpix_x["text"] = "(" + str(self.real_image.x_or) + " px)"
-        self.orpix_y["text"] = "(" + str(self.real_image.y_or) + " px)"
+        self.original_y.insert(tk.END, self.real_image.y_size_or)
+        self.orpix_x["text"] = "(" + str(self.real_image.x_pix_or) + " px)"
+        self.orpix_y["text"] = "(" + str(self.real_image.y_pix_or) + " px)"
         self.bias.delete(0, tk.END)
-        self.bias.insert(tk.END, round(self.real_image.params[2] * 1000, 2))
+        self.bias.insert(tk.END, round(self.real_image.bias * 1000, 2))
 
     def val_reset(self, name):
         if name == "Smoothing":
@@ -129,22 +129,6 @@ class Functions:
         elif name == "Ignore neg.":
             self.ignore_neg_bool.set(False)
 
-        """
-        elif prev_process == "set_contrast":
-            self.upper_set_entry.delete(0, tk.END)
-            self.upper_set_entry.insert(tk.END, 100)
-            self.lower_set_entry.delete(0, tk.END)
-            self.lower_set_entry.insert(tk.END, 0)
-
-        elif prev_process == "FFT":
-            pass
-
-        elif prev_process == "reset":
-            pass
-        self.update_mag()
-        self.size_update()
-        """
-
     def show_image(self):
         if self.real_shown:
             self.real_image.show_image()
@@ -161,7 +145,7 @@ class Functions:
         py, px = self.real_image.image_mod.shape[:2]
         self.current_pxx["text"] = "(" + str(px) + " px)"
         self.current_pxy["text"] = "(" + str(py) + " px)"
-        #self.master.update()
+        # self.master.update()
 
     def update_size_fft(self):
         self.current_x["text"] = str(round(self.fft_image.x_current, 2))
@@ -169,8 +153,7 @@ class Functions:
         py, px = self.fft_image.image_mod.shape[:2]
         self.current_pxx["text"] = "(" + str(px) + " px)"
         self.current_pxy["text"] = "(" + str(py) + " px)"
-        #self.master.update()
-
+        # self.master.update()
 
     def run_process(self):
         image = self.real_image.image_or
@@ -191,8 +174,8 @@ class Functions:
             self.fft_func.size_real_y = self.real_image.y_current
             image = self.fft_func.run()
             self.fft_image.image_or = np.copy(image)
-            self.fft_image.x_or = self.fft_func.x_size
-            self.fft_image.y_or = self.fft_func.y_size
+            self.fft_image.x_size_or = self.fft_func.x_size
+            self.fft_image.y_size_or = self.fft_func.y_size
             mag_fft_x = 1
             mag_fft_y = 1
             for pro in self.processes_FFT:

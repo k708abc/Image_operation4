@@ -69,8 +69,6 @@ class Events:
             self.drift_button["state"] = tk.NORMAL
         self.image_open()
         self.processes[0].image = np.copy(self.real_image.image_or)
-        self.run_process()
-        self.real_image.show_image()
 
     def image_open(self):
         self.real_image.data_path = self.image_list.dir_name + "\\" + self.choice.get()
@@ -133,7 +131,6 @@ class Events:
             self.fft_image.line_method = self.method_line_cb.get()
             self.fft_image.show_image()
 
-
     def show_real_image(self):
         self.real_image.image_mod = np.copy(self.processes[-1].run())
         self.real_image.mag_update(self.processes[-1].mag_update())
@@ -166,7 +163,6 @@ class Events:
             self.processes_FFT = self.smooth_process(self.processes_FFT)
             self.show_fft_image()
 
-
     def median_process(self, process_list):
         if process_list[-1].name == "Median":
             process_list[-1].range = float(self.median_entry.get())
@@ -188,7 +184,6 @@ class Events:
         else:
             self.processes_FFT = self.median_process(self.processes_FFT)
             self.show_fft_image()
-
 
     def drift_process(self, process_list):
         if process_list[-1].name == "Drift":
@@ -348,7 +343,6 @@ class Events:
             self.processes_FFT = self.symm_process(self.processes_FFT)
             self.show_fft_image()
 
-
     def angle_process(self, process_list):
         if process_list[-1].name == "Angle":
             process_list[-1].angle = float(self.symm_angle_entry.get())
@@ -442,7 +436,7 @@ class Events:
             self.show_fft_image()
 
     def mirror_process(self, process_list):
-        if process_list[-1].name == "mirror":
+        if process_list[-1].name == "Mirror":
             process_list[-1].on = self.mirror_bool.get()
         else:
             self.val_reset(process_list[-1].name)
