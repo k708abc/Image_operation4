@@ -4,9 +4,12 @@ import cv2
 import numpy as np
 from Modules.fft_formation import fft_process
 import math
+from Modules.image_class import MyImage
 
 
 def initial_setting_dfft(self):
+    self.image_drift_real = MyImage()
+    self.image_drift_fft = MyImage()
     self.image_open_dfft = True
     self.dfft_FFT = True
     self.prev_mag = 1
@@ -42,16 +45,17 @@ def create_widgets_choice_dfft(self):
     self.cb_choice_dfft = ttk.Combobox(
         self.frame_choice_dfft,
         textvariable=self.var_cb_choice_dfft,
-        values=self.image_list,
+        values=self.image_list.images,
         width=40,
     )
+    if len(self.image_list.images) > 0:
+        self.cb_choice_dfft.current(self.choice.current())
     self.cb_choice_dfft.bind(
         "<<ComboboxSelected>>", lambda event, arg=self: ref_selected_dfft(event, arg)
     )
     #
     self.cblabel_ref_dfft = tk.Label(self.frame_choice_dfft, text="Reference")
     #
-    self.imtype_list_dfft = []
     self.var_imtypes_dfft = tk.StringVar()
     self.cb_imtype_dfft = ttk.Combobox(
         self.frame_choice_dfft,
@@ -59,6 +63,9 @@ def create_widgets_choice_dfft(self):
         values=self.imtype_list_dfft,
         width=40,
     )
+    if len(self.image_list.types) > 0:
+        self.cb_imtype_dfft["values"] = self.image_list.types[0]
+        self.imtype_ref1_choise.current(self.imtype_choice.current())
     self.imtype_dfft_text = ttk.Label(self.frame_choice_dfft, text="Image type")
     #
     self.button_dfft_open = tk.Button(
@@ -105,7 +112,7 @@ def create_widgets_fft_dfft(self):
         "<<ComboboxSelected>>",
         lambda event, arg=self: cb_method_selected_dfft(event, arg),
     )
-    self.method_fft_cb_dfft.current(2)
+    self.method_fft_cb_dfft.current(self.method_fft_cb.current())
     self.method_text_dfft = ttk.Label(self.frame_fft_dfft, text="Method")
     #
     self.var_window_dfft = tk.StringVar()
@@ -116,7 +123,7 @@ def create_widgets_fft_dfft(self):
         "<<ComboboxSelected>>",
         lambda event, arg=self: cb_window_selected_dfft(event, arg),
     )
-    self.window_cb_dfft.current(1)
+    self.window_cb_dfft.current(self.window_cb.current())
     self.window_text_dfft = ttk.Label(self.frame_fft_dfft, text="Window")
 
 
@@ -189,13 +196,21 @@ def create_frame_set_vector(self):
 
 
 def create_widgets_set_vector(self):
-    self.button_dfft_vec1 = tk.Button(
-        self.frame_set_vector,
-        text="Set k vector 1",
-        command=lambda: set_vector_1(self),
-        width=10,
-    )
-    self.button_dfft_vec1["state"] = tk.NORMAL
+    self.vec1_label = ttk.Label(self.frame_set_vector, text="Vector 1")
+    self.vec1_px_label = ttk.Label(self.frame_set_vector, text="px")
+    self.vec1_px_entry = ttk.Entry(self.frame_size_dfft, width=7)
+    self.vec1_px_entry.insert(tk.END, "100")
+    self.vec1_py_label = ttk.Label(self.frame_set_vector, text="py")
+    self.vec1_py_entry = ttk.Entry(self.frame_size_dfft, width=7)
+    self.vec1_py_entry.insert(tk.END, "100")
+    #
+    self.vec2_label = ttk.Label(self.frame_set_vector, text="Vector 2")
+    self.vec2_px_label = ttk.Label(self.frame_set_vector, text="px")
+    self.vec2_px_entry = ttk.Entry(self.frame_size_dfft, width=7)
+    self.vec2_px_entry.insert(tk.END, "200")
+    self.vec2_py_label = ttk.Label(self.frame_set_vector, text="py")
+    self.vec2_py_entry = ttk.Entry(self.frame_size_dfft, width=7)
+    self.vec2_py_entry.insert(tk.END, "100")
     #
     self.dfft_k1_label = ttk.Label(self.frame_set_vector, text="0 nm-1")
     self.dfft_k1_angle_label = ttk.Label(self.frame_set_vector, text="0 °")
@@ -604,7 +619,7 @@ def convert_FFT_real(FFT_x1, FFT_y1, FFT_x2, FFT_y2):
 
 
 def get_polar(x, y):
-    r = math.sqrt(x ** 2 + y ** 2)
+    r = math.sqrt(x**2 + y**2)
     theta = math.atan2(y, x)
     return r, theta
 
@@ -695,13 +710,13 @@ def calculate_drift_dfft(self):
     r = float(self.dfft_set_ratio_entry.get())
     k = math.cos(math.radians(float(self.dfft_set_angle_entry.get())))
 
-    v = (k * r * (b * c + a * d) - r ** 2 * a * b - c * d) / (
-        r ** 2 * b ** 2 - 2 * k * r * b * d + d ** 2
+    v = (k * r * (b * c + a * d) - r**2 * a * b - c * d) / (
+        r**2 * b**2 - 2 * k * r * b * d + d**2
     )
     sqrt = (
-        -(v ** 2)
-        + 2 * (c * d - r ** 2 * a * b) * v / (r ** 2 * b ** 2 - d ** 2)
-        + (c ** 2 - r ** 2 * a ** 2) / (r ** 2 * b ** 2 - d ** 2)
+        -(v**2)
+        + 2 * (c * d - r**2 * a * b) * v / (r**2 * b**2 - d**2)
+        + (c**2 - r**2 * a**2) / (r**2 * b**2 - d**2)
     )
     w1 = -math.sqrt(sqrt) - 1
     w2 = math.sqrt(sqrt) - 1

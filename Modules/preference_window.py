@@ -474,7 +474,7 @@ class Window(ttk.Frame):
         )
         #
         self.var_method_fft = tk.StringVar()
-        self.method_fft_table = ["Linear", "Sqrt", "Log"]
+
         self.method_fft_cb = ttk.Combobox(
             self.frame_fft,
             textvariable=self.var_method_fft,
@@ -485,7 +485,6 @@ class Window(ttk.Frame):
         self.method_text = ttk.Label(self.frame_fft, text="Intensity")
         #
         self.var_window = tk.StringVar()
-        self.window_table = ["None", "hann", "hamming", "blackman"]
         self.window_cb = ttk.Combobox(
             self.frame_fft, textvariable=self.var_window, values=self.window_table
         )

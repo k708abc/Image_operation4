@@ -26,6 +26,8 @@ class Functions:
         self.processes_FFT = [ImOpen()]
         self.manage_bool = False
         self.name_change = False
+        self.method_fft_table = ["Linear", "Sqrt", "Log"]
+        self.window_table = ["None", "hann", "hamming", "blackman"]
 
     def record_name_base(self):
         if self.name_change is False:

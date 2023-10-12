@@ -11,8 +11,8 @@ from skimage.filters import window
 
 class ImageList:
     dir_name = None
-    images = None
-    types = None
+    images = []
+    types = []
 
     def formlist(self):
         image_list = [

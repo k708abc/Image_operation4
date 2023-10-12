@@ -43,7 +43,8 @@ def create_widgets_ref_choise(self):
     self.cb_first_image.bind(
         "<<ComboboxSelected>>", lambda event, arg=self: ref1_selected(event, arg)
     )
-    self.cb_first_image.current(0)
+    if len(self.image_list.images) > 0:
+        self.cb_first_image.current(0)
     #
     self.cblabel_ref1 = tk.Label(self.frame_ref_choise, text="Reference 1")
     #
@@ -51,10 +52,11 @@ def create_widgets_ref_choise(self):
     self.imtype_ref1_choise = ttk.Combobox(
         self.frame_ref_choise,
         textvariable=self.var_ref1_imtypes,
-        values=self.image_list.types[0],
         width=40,
     )
-    self.imtype_ref1_choise.current(0)
+    if len(self.image_list.types) > 0:
+        self.imtype_ref1_choise["values"] = self.image_list.types[0]
+        self.imtype_ref1_choise.current(0)
     #
     self.button_ref1_open = tk.Button(
         self.frame_ref_choise, text="Open", command=lambda: ref1_open(self), width=10
@@ -73,7 +75,8 @@ def create_widgets_ref_choise(self):
         values=self.image_list.images,
         width=40,
     )
-    self.cb_second_image.current(0)
+    if len(self.image_list.images) > 0:
+        self.cb_second_image.current(0)
     #
     self.cblabel_ref2 = tk.Label(self.frame_ref_choise, text="Reference 2")
     #
@@ -81,10 +84,11 @@ def create_widgets_ref_choise(self):
     self.imtype_ref2_choise = ttk.Combobox(
         self.frame_ref_choise,
         textvariable=self.var_ref2_imtypes,
-        values=self.image_list.types[0],
         width=40,
     )
-    self.imtype_ref2_choise.current(0)
+    if len(self.image_list.types) > 0:
+        self.imtype_ref2_choise["values"] = self.image_list.types[0]
+        self.imtype_ref2_choise.current(0)
     #
     self.cb_second_image.bind(
         "<<ComboboxSelected>>", lambda event, arg=self: ref2_selected(event, arg)
