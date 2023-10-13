@@ -195,9 +195,9 @@ class Drift:
 class Rescale:
     name = "Rescale"
     image = None
-    all = None
-    x = None
-    y = None
+    all = 1
+    x = 1
+    y = 1
     params = ["All", "X", "Y"]
     params_type = ["entry", "entry", "entry"]
     cal = None

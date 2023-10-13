@@ -88,6 +88,7 @@ class MyImage:
     mouse_on = False
     mouse_x = 0
     mouse_y = 0
+    line_on = False
     line_method = None
     line_points = []
 
@@ -202,7 +203,8 @@ class MyImage:
         if self.open_bool:
             self.contrast_adjust()
             self.contrast_change()
-            self.draw_line()
+            if self.line_on:
+                self.draw_line()
             self.color_change()
             if self.mouse_on:
                 cv2.namedWindow(self.image_name)
@@ -336,8 +338,8 @@ class MyImage:
         for points in self.line_points:
             cv2.line(
                 self.image_cad,
-                (points[0][0], points[0][1]),
-                (points[1][0], points[1][1]),
+                (points[0][0], height - points[0][1]),
+                (points[1][0], height - points[1][1]),
                 color_line,
                 1,
             )

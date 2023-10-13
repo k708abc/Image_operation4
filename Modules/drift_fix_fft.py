@@ -2,22 +2,29 @@ import tkinter.ttk as ttk
 import tkinter as tk
 import cv2
 import numpy as np
-from Modules.fft_formation import fft_process
 import math
-from Modules.image_class import MyImage
+from Modules.image_class import MyImage, FFT
+from Modules.process_classes import Rescale
 
 
 def initial_setting_dfft(self):
     self.image_drift_real = MyImage()
     self.image_drift_fft = MyImage()
+    self.fft_drift = FFT()
+    self.rescale_dfft = Rescale()
+    self.image_drift_real.image_name = "Drift fix"
+    self.image_drift_fft.image_name = "Drift fix"
+    self.image_drift_real.line_on = True
+    self.image_drift_fft.line_on = True
+    self.image_drift_real.open_bool = True
+    self.image_drift_fft.open_bool = True
     self.image_open_dfft = True
     self.dfft_FFT = True
     self.prev_mag = 1
-    self.cb_choice_dfft.set(self.choice.get())
-    set_imtype(self)
-    self.cb_imtype_dfft.set(self.imtype_choice.get())
-    cv2.namedWindow("Arrow")
-    cv2.setMouseCallback("Arrow", mouse_event_arrow1, self)
+    read_image_dfft(self)
+    update_dfft(self)
+    reset_arrow_dfft(self)
+    cal_sizes(self)
     show_image_dfft(self)
 
 
@@ -60,18 +67,17 @@ def create_widgets_choice_dfft(self):
     self.cb_imtype_dfft = ttk.Combobox(
         self.frame_choice_dfft,
         textvariable=self.var_imtypes_dfft,
-        values=self.imtype_list_dfft,
         width=40,
     )
     if len(self.image_list.types) > 0:
         self.cb_imtype_dfft["values"] = self.image_list.types[0]
-        self.imtype_ref1_choise.current(self.imtype_choice.current())
+        self.cb_imtype_dfft.current(self.imtype_choice.current())
     self.imtype_dfft_text = ttk.Label(self.frame_choice_dfft, text="Image type")
     #
     self.button_dfft_open = tk.Button(
         self.frame_choice_dfft,
         text="Open",
-        command=lambda: ref_open_dfft(self),
+        command=lambda: read_dfft_clicked(self),
         width=10,
     )
     self.button_dfft_open["state"] = tk.NORMAL
@@ -165,10 +171,16 @@ def create_widgets_size_dfft(self):
     self.label_dfft_size_x = tk.Label(self.frame_size_dfft, text="Size x (nm)")
     self.dfft_size_x_entry = ttk.Entry(self.frame_size_dfft, width=7)
     self.dfft_size_x_entry.insert(tk.END, "30")
+    self.dfft_size_x_entry.bind(
+        "<Return>", lambda event, arg=self: size_bind(event, arg)
+    )
     #
     self.label_dfft_size_y = tk.Label(self.frame_size_dfft, text="Size y (nm)")
     self.dfft_size_y_entry = ttk.Entry(self.frame_size_dfft, width=7)
     self.dfft_size_y_entry.insert(tk.END, "30")
+    self.dfft_size_y_entry.bind(
+        "<Return>", lambda event, arg=self: size_bind(event, arg)
+    )
     #
     self.label_dfft_size_x_FFT = tk.Label(self.frame_size_dfft, text="Size kx (nm-1)")
     self.dfft_size_x_FFT = tk.Label(self.frame_size_dfft, text="0")
@@ -198,19 +210,35 @@ def create_frame_set_vector(self):
 def create_widgets_set_vector(self):
     self.vec1_label = ttk.Label(self.frame_set_vector, text="Vector 1")
     self.vec1_px_label = ttk.Label(self.frame_set_vector, text="px")
-    self.vec1_px_entry = ttk.Entry(self.frame_size_dfft, width=7)
-    self.vec1_px_entry.insert(tk.END, "100")
+    self.vec1_px_entry = ttk.Entry(self.frame_set_vector, width=7)
+    self.vec1_px_entry.bind(
+        "<Return>", lambda event, arg=self: dfft_1return_bind(event, arg)
+    )
+    self.vec1_px_entry.bind("<Up>", lambda event, arg=self: dfft_1up_bind(event, arg))
+    self.vec1_px_entry.bind(
+        "<Down>", lambda event, arg=self: dfft_1down_bind(event, arg)
+    )
+    self.vec1_px_entry.bind(
+        "<Left>", lambda event, arg=self: dfft_1left_bind(event, arg)
+    )
+    self.vec1_px_entry.bind(
+        "<Right>", lambda event, arg=self: dfft_1right_bind(event, arg)
+    )
     self.vec1_py_label = ttk.Label(self.frame_set_vector, text="py")
-    self.vec1_py_entry = ttk.Entry(self.frame_size_dfft, width=7)
-    self.vec1_py_entry.insert(tk.END, "100")
-    #
-    self.vec2_label = ttk.Label(self.frame_set_vector, text="Vector 2")
-    self.vec2_px_label = ttk.Label(self.frame_set_vector, text="px")
-    self.vec2_px_entry = ttk.Entry(self.frame_size_dfft, width=7)
-    self.vec2_px_entry.insert(tk.END, "200")
-    self.vec2_py_label = ttk.Label(self.frame_set_vector, text="py")
-    self.vec2_py_entry = ttk.Entry(self.frame_size_dfft, width=7)
-    self.vec2_py_entry.insert(tk.END, "100")
+    self.vec1_py_entry = ttk.Entry(self.frame_set_vector, width=7)
+    self.vec1_py_entry.bind(
+        "<Return>", lambda event, arg=self: dfft_1return_bind(event, arg)
+    )
+    self.vec1_py_entry.bind("<Up>", lambda event, arg=self: dfft_1up_bind(event, arg))
+    self.vec1_py_entry.bind(
+        "<Down>", lambda event, arg=self: dfft_1down_bind(event, arg)
+    )
+    self.vec1_py_entry.bind(
+        "<Left>", lambda event, arg=self: dfft_1left_bind(event, arg)
+    )
+    self.vec1_py_entry.bind(
+        "<Right>", lambda event, arg=self: dfft_1right_bind(event, arg)
+    )
     #
     self.dfft_k1_label = ttk.Label(self.frame_set_vector, text="0 nm-1")
     self.dfft_k1_angle_label = ttk.Label(self.frame_set_vector, text="0 °")
@@ -219,13 +247,39 @@ def create_widgets_set_vector(self):
     self.FFT_label_k1 = ttk.Label(self.frame_set_vector, text="FFT")
     self.FFT_label_r1 = ttk.Label(self.frame_set_vector, text="Real")
     #
-    self.button_dfft_vec2 = tk.Button(
-        self.frame_set_vector,
-        text="Set k vector 2",
-        command=lambda: set_vector_2(self),
-        width=10,
+    self.vec2_label = ttk.Label(self.frame_set_vector, text="Vector 2")
+    self.vec2_px_label = ttk.Label(self.frame_set_vector, text="px")
+    self.vec2_px_entry = ttk.Entry(self.frame_set_vector, width=7)
+    self.vec2_px_entry.bind(
+        "<Return>", lambda event, arg=self: dfft_2return_bind(event, arg)
     )
-    self.button_dfft_vec2["state"] = tk.NORMAL
+    self.vec2_px_entry.bind("<Up>", lambda event, arg=self: dfft_2up_bind(event, arg))
+    self.vec2_px_entry.bind(
+        "<Down>", lambda event, arg=self: dfft_2down_bind(event, arg)
+    )
+    self.vec2_px_entry.bind(
+        "<Left>", lambda event, arg=self: dfft_2left_bind(event, arg)
+    )
+    self.vec2_px_entry.bind(
+        "<Right>", lambda event, arg=self: dfft_2right_bind(event, arg)
+    )
+    self.vec2_py_label = ttk.Label(self.frame_set_vector, text="py")
+    self.vec2_py_entry = ttk.Entry(self.frame_set_vector, width=7)
+    self.vec2_py_entry.bind(
+        "<Return>", lambda event, arg=self: dfft_2return_bind(event, arg)
+    )
+    self.vec2_py_entry.bind("<Up>", lambda event, arg=self: dfft_2up_bind(event, arg))
+    self.vec2_py_entry.bind(
+        "<Down>", lambda event, arg=self: dfft_2down_bind(event, arg)
+    )
+    self.vec2_py_entry.bind(
+        "<Left>", lambda event, arg=self: dfft_2left_bind(event, arg)
+    )
+    self.vec2_py_entry.bind(
+        "<Right>", lambda event, arg=self: dfft_2right_bind(event, arg)
+    )
+    #
+
     #
     self.dfft_k2_label = ttk.Label(self.frame_set_vector, text="0 nm-1")
     self.dfft_k2_angle_label = ttk.Label(self.frame_set_vector, text="0 °")
@@ -236,21 +290,30 @@ def create_widgets_set_vector(self):
 
 
 def create_layout_set_vector(self):
-    self.button_dfft_vec1.grid(rowspan=2, row=0, column=0, sticky=tk.N + tk.S)
-    self.dfft_k1_label.grid(row=0, column=2, **self.padWE)
-    self.dfft_k1_angle_label.grid(row=0, column=3, **self.padWE)
-    self.dfft_r1_label.grid(row=1, column=2, **self.padWE)
-    self.dfft_r1_angle_label.grid(row=1, column=3, **self.padWE)
-    self.FFT_label_k1.grid(row=0, column=1, **self.padWE)
-    self.FFT_label_r1.grid(row=1, column=1, **self.padWE)
+    self.vec1_label.grid(row=0, column=0, **self.padWE)
+    self.vec1_px_label.grid(row=0, column=1, **self.padWE)
+    self.vec1_px_entry.grid(row=0, column=2, **self.padWE)
+    self.vec1_py_label.grid(row=0, column=3, **self.padWE)
+    self.vec1_py_entry.grid(row=0, column=4, **self.padWE)
+    self.FFT_label_k1.grid(row=1, column=1, **self.padWE)
+    self.dfft_k1_label.grid(row=1, column=2, **self.padWE)
+    self.dfft_k1_angle_label.grid(row=1, column=3, **self.padWE)
+    self.FFT_label_r1.grid(row=2, column=1, **self.padWE)
+    self.dfft_r1_label.grid(row=2, column=2, **self.padWE)
+    self.dfft_r1_angle_label.grid(row=2, column=3, **self.padWE)
     #
-    self.button_dfft_vec2.grid(rowspan=2, row=2, column=0, sticky=tk.N + tk.S)
-    self.dfft_k2_label.grid(row=2, column=2, **self.padWE)
-    self.dfft_k2_angle_label.grid(row=2, column=3, **self.padWE)
-    self.dfft_r2_label.grid(row=3, column=2, **self.padWE)
-    self.dfft_r2_angle_label.grid(row=3, column=3, **self.padWE)
-    self.FFT_label_k2.grid(row=2, column=1, **self.padWE)
-    self.FFT_label_r2.grid(row=3, column=1, **self.padWE)
+    self.vec2_label.grid(row=3, column=0, **self.padWE)
+    self.vec2_px_label.grid(row=3, column=1, **self.padWE)
+    self.vec2_px_entry.grid(row=3, column=2, **self.padWE)
+    self.vec2_py_label.grid(row=3, column=3, **self.padWE)
+    self.vec2_py_entry.grid(row=3, column=4, **self.padWE)
+    self.FFT_label_k2.grid(row=4, column=1, **self.padWE)
+    #
+    self.dfft_k2_label.grid(row=4, column=2, **self.padWE)
+    self.dfft_k2_angle_label.grid(row=4, column=3, **self.padWE)
+    self.FFT_label_r2.grid(row=5, column=1, **self.padWE)
+    self.dfft_r2_label.grid(row=5, column=2, **self.padWE)
+    self.dfft_r2_angle_label.grid(row=5, column=3, **self.padWE)
 
 
 def create_frame_params_dfft(self):
@@ -340,36 +403,138 @@ def create_layout_comment_dfft(self):
     self.dfft_val_check_label.grid(row=0, column=0, **self.padWE)
 
 
-def set_imtype(self):
-    self.data_path = self.dir_name + "\\" + self.cb_choice_dfft.get()
-    self.imtype_list_dfft = self.get_datatypes(self.data_path)
-    self.cb_imtype_dfft["values"] = self.imtype_list_dfft
-
-
 def ref_selected_dfft(event, self):
-    set_imtype(self)
+    self.cb_imtype_dfft["values"] = self.image_list.types[self.cb_choice_dfft.current()]
     self.cb_imtype_dfft.current(0)
-    self.fft_fix_window.update()
 
 
-def ref_open_dfft(self):
+def dfft_1up_bind(event, self):
+    val = int(self.vec1_py_entry.get()) + 1
+    self.vec1_py_entry.delete(0, tk.END)
+    self.vec1_py_entry.insert(tk.END, val)
+    self.image_drift_fft.line_points[0][1][1] = val
     show_image_dfft(self)
 
 
-def mouse_event_arrow1(event, x, y, flags, self):
-    if event == cv2.EVENT_LBUTTONUP and self.dfft_FFT:
-        self.vec1_x = x
-        self.vec1_y = y
-        show_dfft(self)
-        put_values_dfft(self)
+def dfft_1down_bind(event, self):
+    val = int(self.vec1_py_entry.get()) - 1
+    self.vec1_py_entry.delete(0, tk.END)
+    self.vec1_py_entry.insert(tk.END, val)
+    self.image_drift_fft.line_points[0][1][1] = val
+    show_image_dfft(self)
 
 
-def mouse_event_arrow2(event, x, y, flags, self):
-    if event == cv2.EVENT_LBUTTONUP and self.dfft_FFT:
-        self.vec2_x = x
-        self.vec2_y = y
-        show_dfft(self)
-        put_values_dfft(self)
+def dfft_1right_bind(event, self):
+    val = int(self.vec1_px_entry.get()) + 1
+    self.vec1_px_entry.delete(0, tk.END)
+    self.vec1_px_entry.insert(tk.END, val)
+    self.image_drift_fft.line_points[0][1][0] = val
+    show_image_dfft(self)
+
+
+def dfft_1left_bind(event, self):
+    val = int(self.vec1_px_entry.get()) - 1
+    self.vec1_px_entry.delete(0, tk.END)
+    self.vec1_px_entry.insert(tk.END, val)
+    self.image_drift_fft.line_points[0][1][0] = val
+    show_image_dfft(self)
+
+
+def dfft_1return_bind(event, self):
+    self.image_drift_fft.line_points[0][1][0] = int(self.vec1_px_entry.get())
+    self.image_drift_fft.line_points[0][1][1] = int(self.vec1_py_entry.get())
+    show_image_dfft(self)
+
+
+def dfft_2up_bind(event, self):
+    val = int(self.vec2_py_entry.get()) + 1
+    self.vec2_py_entry.delete(0, tk.END)
+    self.vec2_py_entry.insert(tk.END, val)
+    self.image_drift_fft.line_points[1][1][1] = val
+    show_image_dfft(self)
+
+
+def dfft_2down_bind(event, self):
+    val = int(self.vec2_py_entry.get()) - 1
+    self.vec2_py_entry.delete(0, tk.END)
+    self.vec2_py_entry.insert(tk.END, val)
+    self.image_drift_fft.line_points[1][1][1] = val
+    show_image_dfft(self)
+
+
+def dfft_2right_bind(event, self):
+    val = int(self.vec2_px_entry.get()) + 1
+    self.vec2_px_entry.delete(0, tk.END)
+    self.vec2_px_entry.insert(tk.END, val)
+    self.image_drift_fft.line_points[1][1][0] = val
+    show_image_dfft(self)
+
+
+def dfft_2left_bind(event, self):
+    val = int(self.vec2_px_entry.get()) - 1
+    self.vec2_px_entry.delete(0, tk.END)
+    self.vec2_px_entry.insert(tk.END, val)
+    self.image_drift_fft.line_points[1][1][0] = val
+    show_image_dfft(self)
+
+
+def dfft_2return_bind(event, self):
+    self.image_drift_fft.line_points[1][1][0] = int(self.vec2_px_entry.get())
+    self.image_drift_fft.line_points[1][1][1] = int(self.vec2_py_entry.get())
+    show_image_dfft(self)
+
+
+def read_dfft_clicked(self):
+    read_image_dfft(self)
+    update_dfft(self)
+    show_image_dfft(self)
+
+
+def read_image_dfft(self):
+    self.image_drift_real.open_bool = True
+    # self.image_drift_real.line = True
+    self.image_drift_real.data_path = (
+        self.image_list.dir_name + "\\" + self.cb_choice_dfft.get()
+    )
+    self.image_drift_real.channel_val = self.cb_imtype_dfft.current()
+    self.image_drift_real.read_image()
+    self.dfft_size_x_entry.delete(0, tk.END)
+    self.dfft_size_x_entry.insert(tk.END, self.image_drift_real.x_size_or)
+    self.dfft_size_y_entry.delete(0, tk.END)
+    self.dfft_size_y_entry.insert(tk.END, self.image_drift_real.y_size_or)
+
+
+def update_dfft(self):
+    self.fft_drift.method = self.method_fft_cb_dfft.get()
+    self.fft_drift.window_func = self.window_cb_dfft.get()
+    self.fft_drift.image = self.image_drift_real.image_mod
+    self.fft_drift.size_real_x = self.real_image.x_current
+    self.fft_drift.size_real_y = self.real_image.y_current
+    image = self.fft_drift.run()
+    self.image_drift_fft.image_or = np.copy(image)
+    self.image_drift_fft.image_mod = np.copy(image)
+    self.image_drift_fft.x_size_or = self.fft_drift.x_size
+    self.image_drift_fft.y_size_or = self.fft_drift.y_size
+    self.dfft_size_x_FFT["text"] = str(round(self.fft_drift.x_size, 2))
+    self.dfft_size_y_FFT["text"] = str(round(self.fft_drift.y_size, 2))
+
+
+def show_image_dfft(self):
+    if self.dfft_FFT:
+        self.rescale_dfft.image = self.image_drift_fft.image_mod
+        self.image_drift_fft.image_mod = self.rescale_dfft.run()
+        self.image_drift_fft.show_image()
+    else:
+        self.rescale_dfft.image = self.image_drift_real.image_mod
+        self.image_drift_real.image_mod = self.rescale_dfft.run()
+        self.image_drift_real.show_image()
+    # put_values_dfft(self)
+
+
+def size_bind(event, self):
+    self.image_drift_real.x_size_or = float(self.dfft_size_x_entry.get())
+    self.image_drift_real.y_size_or = float(self.dfft_size_y_entry.get())
+    update_dfft(self)
 
 
 def fft_function_dfft(self):
@@ -384,51 +549,18 @@ def fft_function_dfft(self):
 
 
 def cb_method_selected_dfft(event, self):
-    if self.dfft_FFT:
-        show_image_dfft(self)
+    update_dfft(self)
+    show_image_dfft(self)
 
 
 def cb_window_selected_dfft(event, self):
-    if self.dfft_FFT:
-        show_image_dfft(self)
-
-
-def using_vec1(self):
-    self.button_dfft_vec1["state"] = tk.DISABLED
-    self.button_dfft_vec1["text"] = "Selected"
-    self.button_dfft_vec2["state"] = tk.NORMAL
-    self.button_dfft_vec2["text"] = "set k vector 2"
-
-
-def using_vec2(self):
-    self.button_dfft_vec1["state"] = tk.NORMAL
-    self.button_dfft_vec1["text"] = "set k vector 1"
-    self.button_dfft_vec2["state"] = tk.DISABLED
-    self.button_dfft_vec2["text"] = "Selected"
-
-
-def set_vector_1(self):
-    cv2.setMouseCallback("Arrow", mouse_event_arrow1, self)
-    using_vec1(self)
-
-
-def set_vector_2(self):
-    cv2.setMouseCallback("Arrow", mouse_event_arrow2, self)
-    using_vec2(self)
+    update_dfft(self)
+    show_image_dfft(self)
 
 
 def reset_dfft(self):
     reset_arrow_dfft(self)
     show_image_dfft(self)
-
-
-def reset_arrow_dfft(self):
-    default_x = self.image_target.shape[1]
-    default_y = self.image_target.shape[0]
-    self.vec1_x = int(default_x / 4 * 3)
-    self.vec1_y = int(default_y / 2)
-    self.vec2_x = int(default_x / 2)
-    self.vec2_y = int(default_y / 4)
 
 
 def close_dfft(self):
@@ -439,167 +571,37 @@ def close_dfft(self):
     self.fft_fix_window.destroy()
 
 
-def magnification(image, magnitude):
-    height, width = image.shape[0], image.shape[1]
-    width_x = int(width * magnitude)
-    height_y = int(height * magnitude)
-    image_re = cv2.resize(image, (width_x, height_y))
-    return image_re
+def reset_arrow_dfft(self):
+    fft_x, fft_y = self.image_drift_fft.image_mod.shape[:2]
+    fft_center_x = int(fft_x / 2)
+    fft_center_y = int(fft_y / 2)
+    fft_x1 = int(fft_x / 4 * 3)
+    fft_y1 = int(fft_y / 2)
+    fft_x2 = int(fft_x / 4 * 3)
+    fft_y2 = int(fft_y / 4)
+    self.image_drift_fft.line_points = [
+        [[fft_center_x, fft_center_y], [fft_x1, fft_y1]],
+        [[fft_center_x, fft_center_y], [fft_x2, fft_y2]],
+    ]
+    self.vec1_px_entry.delete(0, tk.END)
+    self.vec1_px_entry.insert(tk.END, fft_x1)
+    self.vec1_py_entry.delete(0, tk.END)
+    self.vec1_py_entry.insert(tk.END, fft_y1)
+    self.vec2_px_entry.delete(0, tk.END)
+    self.vec2_px_entry.insert(tk.END, fft_x2)
+    self.vec2_py_entry.delete(0, tk.END)
+    self.vec2_py_entry.insert(tk.END, fft_y2)
 
-
-def mag_bind(event, self):
     show_image_dfft(self)
 
 
-def show_image_dfft(self):
-    read_reference_dfft(self)
-    convert_FFT(self)
-    if self.dfft_FFT:
-        self.image_target = np.copy(self.image_dfft_FFT)
-    else:
-        self.image_target = np.copy(self.image_dfft_or)
-    # magnification
-    self.image_target = magnification(
-        self.image_target, float(self.dfft_mag_entry.get())
-    )
-
-    if self.image_open_dfft:
-        reset_arrow_dfft(self)
-        set_vector_1(self)
-        self.image_open_dfft = False
-    self.vec1_x = int(self.vec1_x / self.prev_mag * float(self.dfft_mag_entry.get()))
-    self.vec1_y = int(self.vec1_y / self.prev_mag * float(self.dfft_mag_entry.get()))
-    self.vec2_x = int(self.vec2_x / self.prev_mag * float(self.dfft_mag_entry.get()))
-    self.vec2_y = int(self.vec2_y / self.prev_mag * float(self.dfft_mag_entry.get()))
-
-    self.prev_mag = float(self.dfft_mag_entry.get())
-    colorize(self)
-    show_dfft(self)
-    put_values_dfft(self)
+def mag_bind(event, self):
+    self.rescale_dfft.all = float(self.dfft_mag_entry.get())
+    show_image_dfft(self)
 
 
-def colorize(self):
-    self.image_target = cv2.cvtColor(
-        self.image_target.astype(np.float32), cv2.COLOR_GRAY2BGR
-    )
-
-
-def read_reference_dfft(self):
-    self.data_path_dfft = self.dir_name + "\\" + self.cb_choice_dfft.get()
-    self.channel_type_dfft = self.cb_imtype_dfft.current()
-    #
-    self.image_dfft_or, self.image_dfft_params, _ = self.get_image_values(
-        self.data_path_dfft, self.channel_type_dfft
-    )
-    self.dfft_pix = len(self.image_dfft_or)
-
-    init_sizes_calculation(self)
-
-    self.image_dfft_or = (self.image_dfft_or - np.min(self.image_dfft_or)) / (
-        np.max(self.image_dfft_or) - np.min(self.image_dfft_or)
-    )
-
-
-def init_sizes_calculation(self):
-    size_x_real = self.image_dfft_params[0]
-    size_y_real = self.image_dfft_params[1]
-    #
-    self.fft_size_x_dfft = 2 * math.pi / size_x_real * self.image_dfft_or.shape[1]
-
-    self.fft_size_y_dfft = 2 * math.pi / size_y_real * self.image_dfft_or.shape[0]
-
-    #
-    self.dfft_size_x_entry.delete(0, tk.END)
-    self.dfft_size_x_entry.insert(tk.END, size_x_real)
-    #
-    self.dfft_size_y_entry.delete(0, tk.END)
-    self.dfft_size_y_entry.insert(tk.END, size_y_real)
-    #
-    self.dfft_size_x_FFT["text"] = str(round(self.fft_size_x_dfft, 2))
-    self.dfft_size_y_FFT["text"] = str(round(self.fft_size_y_dfft, 2))
-
-
-def convert_FFT(self):
-    self.image_dfft_FFT = fft_process(
-        self.image_dfft_or, self.method_fft_cb_dfft.get(), self.window_cb_dfft.get()
-    )
-    self.image_dfft_FFT = (self.image_dfft_FFT - np.min(self.image_dfft_FFT)) / (
-        np.max(self.image_dfft_FFT) - np.min(self.image_dfft_FFT)
-    )
-
-
-def show_dfft(self):
-    self.image_dfft = np.copy(self.image_target)
-    draw_arrow(self)
-    cv2.imshow("Arrow", self.image_dfft)
-
-
-def draw_arrow(self):
-    center = (int(self.image_dfft.shape[1] / 2), int(self.image_dfft.shape[0] / 2))
-    if self.dfft_FFT:
-        cv2.arrowedLine(
-            self.image_dfft,
-            center,
-            (self.vec1_x, self.vec1_y),
-            (255, 0, 0),
-            thickness=1,
-            shift=0,
-            tipLength=0.1,
-        )
-        cv2.arrowedLine(
-            self.image_dfft,
-            center,
-            (self.vec2_x, self.vec2_y),
-            (0, 255, 0),
-            thickness=1,
-            shift=0,
-            tipLength=0.1,
-        )
-    else:
-        cv2.arrowedLine(
-            self.image_dfft,
-            center,
-            (
-                center[0]
-                + int(
-                    self.x1_real
-                    / float(self.dfft_size_x_entry.get())
-                    * self.image_dfft.shape[1]
-                ),
-                center[1]
-                + int(
-                    self.y1_real
-                    / float(self.dfft_size_y_entry.get())
-                    * self.image_dfft.shape[0]
-                ),
-            ),
-            (255, 0, 0),
-            thickness=1,
-            shift=0,
-            tipLength=0.1,
-        )
-        cv2.arrowedLine(
-            self.image_dfft,
-            center,
-            (
-                center[0]
-                + int(
-                    self.x2_real
-                    / float(self.dfft_size_x_entry.get())
-                    * self.image_dfft.shape[1]
-                ),
-                center[1]
-                + int(
-                    self.y2_real
-                    / float(self.dfft_size_y_entry.get())
-                    * self.image_dfft.shape[0]
-                ),
-            ),
-            (0, 255, 0),
-            thickness=1,
-            shift=0,
-            tipLength=0.1,
-        )
+def cal_sizes(self):
+    pass
 
 
 def convert_FFT_real(FFT_x1, FFT_y1, FFT_x2, FFT_y2):

@@ -488,9 +488,6 @@ class Events:
         self.fft_button["text"] = "Real → FFT"
         self.record_name_real()
 
-    def fft_process(self):
-        pass
-
     def fft_clicked(self):
         if self.real_shown:
             self.real_shown = False
