@@ -24,7 +24,6 @@ def initial_setting_dfft(self):
     read_image_dfft(self)
     update_dfft(self)
     reset_arrow_dfft(self)
-    cal_sizes(self)
     show_image_dfft(self)
 
 
@@ -279,8 +278,6 @@ def create_widgets_set_vector(self):
         "<Right>", lambda event, arg=self: dfft_2right_bind(event, arg)
     )
     #
-
-    #
     self.dfft_k2_label = ttk.Label(self.frame_set_vector, text="0 nm-1")
     self.dfft_k2_angle_label = ttk.Label(self.frame_set_vector, text="0 °")
     self.dfft_r2_label = ttk.Label(self.frame_set_vector, text="0 nm")
@@ -492,7 +489,6 @@ def read_dfft_clicked(self):
 
 def read_image_dfft(self):
     self.image_drift_real.open_bool = True
-    # self.image_drift_real.line = True
     self.image_drift_real.data_path = (
         self.image_list.dir_name + "\\" + self.cb_choice_dfft.get()
     )
@@ -528,7 +524,7 @@ def show_image_dfft(self):
         self.rescale_dfft.image = self.image_drift_real.image_mod
         self.image_drift_real.image_mod = self.rescale_dfft.run()
         self.image_drift_real.show_image()
-    # put_values_dfft(self)
+    put_values_dfft(self)
 
 
 def size_bind(event, self):
@@ -600,10 +596,6 @@ def mag_bind(event, self):
     show_image_dfft(self)
 
 
-def cal_sizes(self):
-    pass
-
-
 def convert_FFT_real(FFT_x1, FFT_y1, FFT_x2, FFT_y2):
     # unit vector in real space
     """
@@ -627,26 +619,19 @@ def get_polar(x, y):
 
 
 def put_values_dfft(self):
-    center = (self.image_dfft.shape[1] / 2, self.image_dfft.shape[0] / 2)
-    x_diff1 = (
-        (self.vec1_x - center[0]) / self.image_dfft.shape[1] * self.fft_size_x_dfft
-    )
-    y_diff1 = (
-        (self.vec1_y - center[1]) / self.image_dfft.shape[0] * self.fft_size_y_dfft
-    )
-    x_diff2 = (
-        (self.vec2_x - center[0]) / self.image_dfft.shape[1] * self.fft_size_x_dfft
-    )
-    y_diff2 = (
-        (self.vec2_y - center[1]) / self.image_dfft.shape[0] * self.fft_size_y_dfft
-    )
+    fft_x, fft_y = self.image_drift_fft.image_mod.shape[:2]
+    center_x = fft_x / 2
+    center_y = fft_y / 2
+    vec1_x = (int(self.vec1_px_entry.get()) - center_x)/fft_x*self.image_drift_fft.x_current
+    vec1_y = (center_y - int(self.vec1_py_entry.get()))/fft_y*self.image_drift_fft.y_current
+    vec2_x = (int(self.vec2_px_entry.get()) - center_x)/fft_x*self.image_drift_fft.x_current
+    vec2_y = (center_y - int(self.vec2_py_entry.get()))/fft_y*self.image_drift_fft.y_current
     #
-    r1, theta1 = get_polar(x_diff1, y_diff1)
-    r2, theta2 = get_polar(x_diff1, y_diff2)
-
+    r1, theta1 = get_polar(vec1_x, vec1_y)
+    r2, theta2 = get_polar(vec2_x, vec2_y)
     #
     self.x1_real, self.y1_real, self.x2_real, self.y2_real = convert_FFT_real(
-        x_diff1, y_diff1, x_diff2, y_diff2
+        vec1_x, vec1_y, vec2_x, vec2_y
     )
     #
     r1_real, theta1_real = get_polar(self.x1_real, self.y1_real)
@@ -668,7 +653,7 @@ def put_values_dfft(self):
     #
     self.dfft_ratio_val["text"] = str(round(r2_real / r1_real, 2))
     self.dfft_dif_angle_val["text"] = str(
-        round((theta1_real - theta2_real) / math.pi * 180, 2)
+        round((theta2_real - theta1_real) / math.pi * 180, 2)
     )
 
 
@@ -712,6 +697,7 @@ def calculate_drift_dfft(self):
     r = float(self.dfft_set_ratio_entry.get())
     k = math.cos(math.radians(float(self.dfft_set_angle_entry.get())))
 
+
     v = (k * r * (b * c + a * d) - r**2 * a * b - c * d) / (
         r**2 * b**2 - 2 * k * r * b * d + d**2
     )
@@ -740,9 +726,10 @@ def calculate_drift_dfft(self):
 
 def fix_check(v, w, self):
     L = float(self.dfft_size_y_entry.get())
-    v11 = 1 + v / 2 / self.dfft_pix / L
+    fft_x, fft_y = self.image_drift_fft.image_mod.shape[:2]
+    v11 = 1 + v / 2 / fft_y / L
     v12 = v / L
-    v21 = w / 2 / self.dfft_pix
+    v21 = w / 2 / fft_y
     v22 = 1 + w / L
     n_vec1 = [
         self.x1_real * v11 + self.y1_real * v12,
@@ -785,5 +772,4 @@ def calculate_dfft(self):
     self.drift_dx.insert(tk.END, round(self.v, 2))
     self.drift_dy.delete(0, tk.END)
     self.drift_dy.insert(tk.END, round(self.w, 2))
-    if self.drift_bool.get() is True:
-        self.drift_check_func()
+    # ドリフト更新の値を像に反映
