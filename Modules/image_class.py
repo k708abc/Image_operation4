@@ -1,5 +1,6 @@
 #!python3.11
 import numpy as np
+import matplotlib.pyplot as plt
 import os
 from spym.io import rhksm4
 from PIL import Image
@@ -7,7 +8,7 @@ import cv2
 import glob
 import math
 from skimage.filters import window
-
+from skimage.measure import profile_line
 
 class ImageList:
     dir_name = None
@@ -60,8 +61,7 @@ class ImageList:
             except:
                 break
         return data_type_list
-
-
+    
 class MyImage:
     image_or = None
     image_prev = None
@@ -91,6 +91,7 @@ class MyImage:
     line_on = False
     line_method = None
     line_points = []
+    profiling_bool = False
 
     @property
     def x_current(self):
@@ -203,6 +204,9 @@ class MyImage:
         if self.open_bool:
             self.contrast_adjust()
             self.contrast_change()
+            if self.profiling_bool:
+                self.get_profile()
+                self.draw_line()
             if self.line_on:
                 self.draw_line()
             self.color_change()
@@ -210,6 +214,8 @@ class MyImage:
                 cv2.namedWindow(self.image_name)
                 cv2.setMouseCallback(self.image_name, self.mouse_event)
                 self.draw_point()
+
+
             cv2.imshow(self.image_name, self.image_show)
 
     def draw_point(self):
@@ -367,6 +373,16 @@ class MyImage:
         cv2.destroyWindow(self.image_name)
         self.open_bool = False
 
+    def get_profile(self):
+        start = (self.line_points[0][0][0], self.line_points[0][0][1])
+        end = (self.line_points[0][1][0], self.line_points[0][1][1])
+        profile = profile_line(self.image_show, start, end, linewidth= 2)
+        plt.plot(profile)
+        plt.tight_layout()
+        plt.show()
+
+
+
 
 class FFT:
     image = None
@@ -486,10 +502,3 @@ class FFT:
         self.method = values[1]
 
 
-class Profiling:
-    image = None
-    size_x = None
-    size_y = None
-
-    def run(self):
-        pass

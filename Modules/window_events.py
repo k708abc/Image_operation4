@@ -508,8 +508,6 @@ class Events:
         self.fft_func.window = self.window_cb.get()
         self.run_process()
 
-    def profile_clicked(self):
-        pass
 
     def rec_fol_choice_clicked(self):
         self.rec_fol = False
@@ -537,3 +535,74 @@ class Events:
     def rec_text(self):
         self.run_process()
         self.recording_text()
+
+
+    def profile_clicked(self):
+        if self.real_image.profiling_bool:
+            self.real_image.profiling_bool = False
+            self.fft_image.profiling_bool = False
+            self.profile_button["text"] = "Profiling OFF"
+        else:
+            self.real_image.profiling_bool = True
+            self.fft_image.profiling_bool = True
+            self.profile_button["text"] = "Profiling ON"
+
+    def pro1_return_bind(self, event):
+        self.real_image.line_points[0][0][0] = int(self.pro_entry_p1x.get())
+        self.real_image.line_points[0][0][1] = int(self.pro_entry_p1y.get())
+
+    def pro1_up_bind(self, event):
+        val = int(self.pro_entry_p1y.get()) + 1
+        self.pro_entry_p1y.delete(0, tk.END)
+        self.pro_entry_p1y.insert(tk.END, val)
+        self.real_image.line_points[0][0][1] = val
+
+    def pro1_down_bind(self, event):
+        val = int(self.pro_entry_p1y.get()) - 1
+        self.pro_entry_p1y.delete(0, tk.END)
+        self.pro_entry_p1y.insert(tk.END, val)
+        self.real_image.line_points[0][0][1] = val
+
+
+    def pro1_right_bind(self, event):
+        val = int(self.pro_entry_p1x.get()) + 1
+        self.pro_entry_p1x.delete(0, tk.END)
+        self.pro_entry_p1x.insert(tk.END, val)
+        self.real_image.line_points[0][0][0] = val
+
+
+    def pro1_left_bind(self, event):
+        val = int(self.pro_entry_p1x.get()) - 1
+        self.pro_entry_p1x.delete(0, tk.END)
+        self.pro_entry_p1x.insert(tk.END, val)
+        self.real_image.line_points[0][0][0] = val
+
+    def pro2_return_bind(self, event):
+        self.real_image.line_points[0][0][0] = int(self.pro_entry_p2x.get())
+        self.real_image.line_points[0][1][1] = int(self.pro_entry_p2y.get())
+
+    def pro2_up_bind(self, event):
+        val = int(self.pro_entry_p2y.get()) + 1
+        self.pro_entry_p2y.delete(0, tk.END)
+        self.pro_entry_p2y.insert(tk.END, val)
+        self.real_image.line_points[0][1][1] = val
+
+    def pro2_down_bind(self, event):
+        val = int(self.pro_entry_p2y.get()) - 1
+        self.pro_entry_p2y.delete(0, tk.END)
+        self.pro_entry_p2y.insert(tk.END, val)
+        self.real_image.line_points[0][1][1] = val
+
+
+    def pro2_right_bind(self, event):
+        val = int(self.pro_entry_p2x.get()) + 1
+        self.pro_entry_p2x.delete(0, tk.END)
+        self.pro_entry_p2x.insert(tk.END, val)
+        self.real_image.line_points[0][1][0] = val
+
+
+    def pro2_left_bind(self, event):
+        val = int(self.pro_entry_p2x.get()) - 1
+        self.pro_entry_p2x.delete(0, tk.END)
+        self.pro_entry_p2x.insert(tk.END, val)
+        self.real_image.line_points[0][1][0] = val

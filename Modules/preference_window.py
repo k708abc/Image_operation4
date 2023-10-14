@@ -501,8 +501,44 @@ class Window(ttk.Frame):
 
     def create_widgets_profile(self):
         self.profile_button = tk.Button(
-            self.frame_profile, text="Profiling", command=self.profile_clicked, width=30
+            self.frame_profile, text="Profiling OFF", command=self.profile_clicked, width=30
         )
+        self.pro_txt_p1 = ttk.Label(self.frame_profile, text="Point 1")
+        self.pro_txt_p1x = ttk.Label(self.frame_profile, text="x")
+        self.pro_entry_p1x = ttk.Entry(self.frame_profile, width=6)
+        self.pro_entry_p1x.insert(tk.END, "0")
+        self.pro_txt_p1y = ttk.Label(self.frame_profile, text="y")
+        self.pro_entry_p1y = ttk.Entry(self.frame_profile, width=6)
+        self.pro_entry_p1y.insert(tk.END, "0")
+        #
+        self.pro_entry_p1x.bind( "<Return>",  self.pro1_return_bind)
+        self.pro_entry_p1x.bind( "<Up>",  self.pro1_up_bind)
+        self.pro_entry_p1x.bind( "<Down>",  self.pro1_down_bind)
+        self.pro_entry_p1x.bind( "<Left>",  self.pro1_left_bind)
+        self.pro_entry_p1x.bind( "<Right>",  self.pro1_right_bind)
+        self.pro_entry_p1y.bind( "<Return>",  self.pro1_return_bind)
+        self.pro_entry_p1y.bind( "<Up>",  self.pro1_up_bind)
+        self.pro_entry_p1y.bind( "<Down>",  self.pro1_down_bind)
+        self.pro_entry_p1y.bind( "<Left>",  self.pro1_left_bind)
+        self.pro_entry_p1y.bind( "<Right>",  self.pro1_right_bind)
+        #
+        self.pro_txt_p2 = ttk.Label(self.frame_profile, text="Point 2")
+        self.pro_txt_p2x = ttk.Label(self.frame_profile, text="x")
+        self.pro_entry_p2x = ttk.Entry(self.frame_profile, width=6)
+        self.pro_entry_p2x.insert(tk.END, "0")
+        self.pro_txt_p2y = ttk.Label(self.frame_profile, text="y")
+        self.pro_entry_p2y = ttk.Entry(self.frame_profile, width=6)
+        self.pro_entry_p2y.insert(tk.END, "0")
+        self.pro_entry_p2x.bind( "<Return>",  self.pro2_return_bind)
+        self.pro_entry_p2x.bind( "<Up>",  self.pro2_up_bind)
+        self.pro_entry_p2x.bind( "<Down>",  self.pro2_down_bind)
+        self.pro_entry_p2x.bind( "<Left>",  self.pro2_left_bind)
+        self.pro_entry_p2x.bind( "<Right>",  self.pro2_right_bind)
+        self.pro_entry_p2y.bind( "<Return>",  self.pro2_return_bind)
+        self.pro_entry_p2y.bind( "<Up>",  self.pro2_up_bind)
+        self.pro_entry_p2y.bind( "<Down>",  self.pro2_down_bind)
+        self.pro_entry_p2y.bind( "<Left>",  self.pro2_left_bind)
+        self.pro_entry_p2y.bind( "<Right>",  self.pro2_right_bind)
 
     def create_frame_record(self):
         self.frame_record = ttk.Frame()
