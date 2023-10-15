@@ -214,8 +214,6 @@ class MyImage:
                 cv2.namedWindow(self.image_name)
                 cv2.setMouseCallback(self.image_name, self.mouse_event)
                 self.draw_point()
-
-
             cv2.imshow(self.image_name, self.image_show)
 
     def draw_point(self):
@@ -377,9 +375,10 @@ class MyImage:
         start = (self.line_points[0][0][0], self.line_points[0][0][1])
         end = (self.line_points[0][1][0], self.line_points[0][1][1])
         profile = profile_line(self.image_show, start, end, linewidth= 2)
+        plt.clf()
         plt.plot(profile)
         plt.tight_layout()
-        plt.show()
+        plt.show(block = False)
 
 
 
