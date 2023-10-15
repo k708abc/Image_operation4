@@ -524,6 +524,8 @@ class Events:
     def record_function(self):
         self.rec_text()
         self.rec_image()
+        if self.real_image.profiling_bool:
+            self.rec_profile()
 
     def close_function(self):
         self.quit()
@@ -583,7 +585,7 @@ class Events:
         self.show_image()
 
     def pro2_return_bind(self, event):
-        self.real_image.line_points[0][0][0] = int(self.pro_entry_p2x.get())
+        self.real_image.line_points[0][1][0] = int(self.pro_entry_p2x.get())
         self.real_image.line_points[0][1][1] = int(self.pro_entry_p2y.get())
         self.show_image()
 

@@ -1,6 +1,6 @@
 import cv2
 import os
-
+import matplotlib.pyplot as plt
 
 class Recording:
     def folder_check(self, folder):
@@ -132,3 +132,49 @@ class Recording:
             cv2.imwrite(img_name, self.real_image.image_show)
         else:
             cv2.imwrite(img_name, self.fft_image.image_show)
+
+    def rec_profile(self):
+        if self.dirdiv_bool.get():
+            fol_add = "Prof_" + self.record_plus.get() + "\\"
+            self.folder_check(self.dir_name_rec + "\\" + fol_add)
+            img_name = (
+                self.dir_name_rec
+                + "\\"
+                + fol_add
+                + self.record.get()
+                + self.record_plus.get()
+                + ".png"
+            )
+            txt_name = (
+                self.dir_name_rec
+                + "\\"
+                + fol_add
+                + self.record.get()
+                + self.record_plus.get()
+                + ".txt"
+            )
+        else:
+            img_name = (
+                self.dir_name_rec
+                + "\\"
+                + self.record.get()
+                + self.record_plus.get()
+                + ".png"
+            )
+            txt_name = (
+                self.dir_name_rec
+                + "\\"
+                + self.record.get()
+                + self.record_plus.get()
+                + ".txt"
+            )
+        plt.savefig(img_name, format = "png")
+        if self.real_shown:
+            x = self.real_image.axis_x
+            y = self.real_image.profile
+        else:
+            x = self.fft_image.axis_x
+            y = self.fft_image.profile
+    
+
+

@@ -92,6 +92,7 @@ class MyImage:
     line_method = None
     line_points = []
     profiling_bool = False
+    pix_size = None
 
     @property
     def x_current(self):
@@ -120,6 +121,7 @@ class MyImage:
         self.open_bool = True
         self.image_mod = np.copy(self.image_or)
         self.default_contrast()
+        self.pix_size_update()
 
     def default_contrast(self):
         self.max_contrast = np.max(self.image_mod)
@@ -371,14 +373,20 @@ class MyImage:
         cv2.destroyWindow(self.image_name)
         self.open_bool = False
 
+    def pix_size_update(self):
+        _, width = self.image_mod.shape[:2]
+        self.pix_size = self.x_current/width
+
     def get_profile(self):
         start = (self.line_points[0][0][0], self.line_points[0][0][1])
         end = (self.line_points[0][1][0], self.line_points[0][1][1])
-        profile = profile_line(self.image_show, start, end, linewidth= 2)
+        self.profile = profile_line(self.image_mod, start, end, linewidth= 2)
+        self.axis_x = np.linspace(0, self.pix_size*len(self.profile), len(self.profile))
         plt.clf()
-        plt.plot(profile)
+        plt.plot(self.axis_x, self.profile)
         plt.tight_layout()
         plt.show(block = False)
+    
 
 
 
