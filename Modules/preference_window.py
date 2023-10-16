@@ -501,8 +501,12 @@ class Window(ttk.Frame):
 
     def create_widgets_profile(self):
         self.profile_button = tk.Button(
-            self.frame_profile, text="Profiling OFF", command=self.profile_clicked, width=30
+            self.frame_profile,
+            text="Profiling OFF",
+            command=self.profile_clicked,
+            width=30,
         )
+        """
         self.pro_txt_p1 = ttk.Label(self.frame_profile, text="Point 1")
         self.pro_txt_p1x = ttk.Label(self.frame_profile, text="x")
         self.pro_entry_p1x = ttk.Entry(self.frame_profile, width=6)
@@ -539,6 +543,7 @@ class Window(ttk.Frame):
         self.pro_entry_p2y.bind( "<Down>",  self.pro2_down_bind)
         self.pro_entry_p2y.bind( "<Left>",  self.pro2_left_bind)
         self.pro_entry_p2y.bind( "<Right>",  self.pro2_right_bind)
+        """
 
     def create_frame_record(self):
         self.frame_record = ttk.Frame()

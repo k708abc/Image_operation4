@@ -2,6 +2,7 @@ import cv2
 import os
 import matplotlib.pyplot as plt
 
+
 class Recording:
     def folder_check(self, folder):
         if os.path.isdir(folder):
@@ -168,13 +169,17 @@ class Recording:
                 + self.record_plus.get()
                 + ".txt"
             )
-        plt.savefig(img_name, format = "png")
+        plt.savefig(img_name, format="png")
         if self.real_shown:
             x = self.real_image.axis_x
             y = self.real_image.profile
         else:
             x = self.fft_image.axis_x
             y = self.fft_image.profile
-    
-
-
+        with open(txt_name, mode="w") as f:
+            f.write("Profiling record" + "\n")
+            f.write("Image_name:" + "\t" + self.real_image.data_path + "\n")
+            f.write("Channel:" + "\t" + self.real_image.channel_name + "\n\n")
+            f.write("x" + "\t" + "y" + "\n")
+            for xval, yval in zip(x, y):
+                f.write(str(xval) + "\t" + str(yval) + "\n")

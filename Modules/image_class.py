@@ -10,6 +10,7 @@ import math
 from skimage.filters import window
 from skimage.measure import profile_line
 
+
 class ImageList:
     dir_name = None
     images = []
@@ -61,7 +62,8 @@ class ImageList:
             except:
                 break
         return data_type_list
-    
+
+
 class MyImage:
     image_or = None
     image_prev = None
@@ -72,6 +74,7 @@ class MyImage:
     y_pix_or = None
     x_size_or = None
     y_size_or = None
+    data_type = "Real"
     upper = 255
     lower = 0
     data_path = None
@@ -92,7 +95,8 @@ class MyImage:
     line_method = None
     line_points = []
     profiling_bool = False
-    pix_size = None
+    drag1 = False
+    drag2 = False
 
     @property
     def x_current(self):
@@ -121,7 +125,6 @@ class MyImage:
         self.open_bool = True
         self.image_mod = np.copy(self.image_or)
         self.default_contrast()
-        self.pix_size_update()
 
     def default_contrast(self):
         self.max_contrast = np.max(self.image_mod)
@@ -206,16 +209,18 @@ class MyImage:
         if self.open_bool:
             self.contrast_adjust()
             self.contrast_change()
-            if self.profiling_bool:
-                self.get_profile()
-                self.draw_line()
+            self.color_change()
             if self.line_on:
                 self.draw_line()
-            self.color_change()
             if self.mouse_on:
                 cv2.namedWindow(self.image_name)
-                cv2.setMouseCallback(self.image_name, self.mouse_event)
+                cv2.setMouseCallback(self.image_name, self.mouse_event_point)
                 self.draw_point()
+            elif self.profiling_bool:
+                self.get_profile()
+                self.draw_line()
+                cv2.namedWindow(self.image_name)
+                cv2.setMouseCallback(self.image_name, self.mouse_event_line)
             cv2.imshow(self.image_name, self.image_show)
 
     def draw_point(self):
@@ -224,11 +229,58 @@ class MyImage:
             self.image_show, (self.mouse_x, self.mouse_y), 2, (0, 0, 255), -1
         )
 
-    def mouse_event(self, event, x, y, flags, param):
+    def mouse_event_point(self, event, x, y, flags, param):
         if event == cv2.EVENT_LBUTTONUP:
             self.mouse_x = x
             self.mouse_y = y
             self.draw_point()
+            cv2.imshow(self.image_name, self.image_show)
+
+    def mouse_event_line(self, event, x, y, flags, param):
+        height, width = self.image_mod.shape[:2]
+        if x < 0:
+            x = 0
+        if x >= width:
+            x = width - 1
+        if y < 0:
+            y = 0
+        if y >= height:
+            y = height - 1
+        if event == cv2.EVENT_LBUTTONDOWN:
+            dis1 = (x - self.line_points[0][0][0]) ** 2 + (
+                y - self.line_points[0][0][1]
+            ) ** 2
+            dis2 = (x - self.line_points[0][1][0]) ** 2 + (
+                y - self.line_points[0][1][1]
+            ) ** 2
+            if dis1 <= dis2 and dis1 < 20:
+                self.drag1 = True
+                self.drag2 = False
+
+            elif dis2 < dis1 and dis2 < 20:
+                self.drag2 = True
+                self.drag1 = False
+
+        if event == cv2.EVENT_LBUTTONUP:
+            if self.drag1:
+                self.line_points[0][0][0] = x
+                self.line_points[0][0][1] = y
+                self.drag1 = False
+            elif self.drag2:
+                self.line_points[0][1][0] = x
+                self.line_points[0][1][1] = y
+                self.drag2 = False
+            self.show_image()
+
+        if self.drag1:
+            self.line_points[0][0][0] = x
+            self.line_points[0][0][1] = y
+            self.draw_line()
+            cv2.imshow(self.image_name, self.image_show)
+        elif self.drag2:
+            self.line_points[0][1][0] = x
+            self.line_points[0][1][1] = y
+            self.draw_line()
             cv2.imshow(self.image_name, self.image_show)
 
     def contrast_adjust(self):
@@ -291,20 +343,21 @@ class MyImage:
         return LUT
 
     def draw_line(self):
-        height, width = self.image_cad.shape[:2]
-        color_line = 255
+        self.color_change()
+        height, width = self.image_show.shape[:2]
+        color_line = (0, 0, 255)
         if self.line_method is None:
             pass
         elif self.line_method == "XY":
             cv2.line(
-                self.image_cad,
+                self.image_show,
                 (0, int(height / 2)),
                 (int(width), int(height / 2)),
                 color_line,
                 1,
             )
             cv2.line(
-                self.image_cad,
+                self.image_show,
                 (int(width / 2), 0),
                 (int(width / 2), int(height)),
                 color_line,
@@ -312,7 +365,7 @@ class MyImage:
             )
         elif self.line_method == "X":
             cv2.line(
-                self.image_cad,
+                self.image_show,
                 (0, int(height / 2)),
                 (int(width), int(height / 2)),
                 color_line,
@@ -321,33 +374,41 @@ class MyImage:
 
         elif self.line_method == "Six_fold":
             cv2.line(
-                self.image_cad,
+                self.image_show,
                 (0, int(height / 2)),
                 (int(width), int(height / 2)),
                 color_line,
                 1,
             )
             cv2.line(
-                self.image_cad,
+                self.image_show,
                 (int(width / 2 - width / 2 / math.sqrt(3)), 0),
                 (int(width / 2 + width / 2 / math.sqrt(3)), height),
                 color_line,
                 1,
             )
             cv2.line(
-                self.image_cad,
+                self.image_show,
                 (int(width / 2 + width / 2 / math.sqrt(3)), 0),
                 (int(width / 2 - width / 2 / math.sqrt(3)), height),
                 color_line,
                 1,
             )
-        for points in self.line_points:
-            cv2.line(
-                self.image_cad,
-                (points[0][0], height - points[0][1]),
-                (points[1][0], height - points[1][1]),
-                color_line,
+        color_line = [(0, 0, 255), (0, 255, 0)]
+        for i, points in enumerate(self.line_points):
+            cv2.arrowedLine(
+                self.image_show,
+                (points[0][0], points[0][1]),
+                (points[1][0], points[1][1]),
+                color_line[i],
                 1,
+            )
+            cv2.drawMarker(
+                self.image_show,
+                (points[0][0], points[0][1]),
+                color_line[i],
+                markerType=cv2.MARKER_TILTED_CROSS,
+                markerSize=15,
             )
 
     def color_change(self):
@@ -373,22 +434,30 @@ class MyImage:
         cv2.destroyWindow(self.image_name)
         self.open_bool = False
 
-    def pix_size_update(self):
-        _, width = self.image_mod.shape[:2]
-        self.pix_size = self.x_current/width
-
     def get_profile(self):
-        start = (self.line_points[0][0][0], self.line_points[0][0][1])
-        end = (self.line_points[0][1][0], self.line_points[0][1][1])
-        self.profile = profile_line(self.image_mod, start, end, linewidth= 2)
-        self.axis_x = np.linspace(0, self.pix_size*len(self.profile), len(self.profile))
+        _, width = self.image_show.shape[:2]
+        start = (self.line_points[0][0][1], self.line_points[0][0][0])
+        end = (self.line_points[0][1][1], self.line_points[0][1][0])
+        length = (
+            math.sqrt(
+                (self.line_points[0][0][1] - self.line_points[0][1][1]) ** 2
+                + (self.line_points[0][0][0] - self.line_points[0][1][0]) ** 2
+            )
+            / width
+            * self.x_current
+        )
+        self.profile = profile_line(self.image_mod, start, end, linewidth=2)
+        self.axis_x = np.linspace(0, length, len(self.profile))
         plt.clf()
         plt.plot(self.axis_x, self.profile)
+        if self.data_type == "Real":
+            plt.xlabel("Distance (nm)")
+            plt.ylabel("Height (arb. unit))")
+        else:
+            plt.xlabel("Distance (nm-1)")
+            plt.ylabel("Intensiy (arb. unit))")
         plt.tight_layout()
-        plt.show(block = False)
-    
-
-
+        plt.show(block=False)
 
 
 class FFT:
@@ -507,5 +576,3 @@ class FFT:
     def read(self, values):
         self.window_func = values[2]
         self.method = values[1]
-
-

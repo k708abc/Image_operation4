@@ -28,10 +28,12 @@ class Functions:
         self.name_change = False
         self.method_fft_table = ["Linear", "Sqrt", "Log"]
         self.window_table = ["None", "hann", "hamming", "blackman"]
-        self.real_image.line_points = [[[0 ,0], [100, 100]]]
-        self.fft_image.line_points = [[[0 ,0], [100, 100]]]
+        self.real_image.line_points = [[[30, 30], [100, 100]]]
+        self.fft_image.line_points = [[[30, 30], [100, 100]]]
         self.real_image.profiling_bool = False
         self.fft_image.profiling_bool = False
+        self.real_image.data_type = "Real"
+        self.fft_image.data_type = "FFT"
 
     def record_name_base(self):
         if self.name_change is False:

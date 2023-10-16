@@ -508,7 +508,6 @@ class Events:
         self.fft_func.window = self.window_cb.get()
         self.run_process()
 
-
     def rec_fol_choice_clicked(self):
         self.rec_fol = False
         abs_pass = pathlib.Path(filedialog.askdirectory(initialdir=self.dir_name_rec))
@@ -538,7 +537,6 @@ class Events:
         self.run_process()
         self.recording_text()
 
-
     def profile_clicked(self):
         if self.real_image.profiling_bool:
             self.real_image.profiling_bool = False
@@ -550,6 +548,7 @@ class Events:
             self.profile_button["text"] = "Profiling ON"
         self.show_image()
 
+    """
     def pro1_return_bind(self, event):
         self.real_image.line_points[0][0][0] = int(self.pro_entry_p1x.get())
         self.real_image.line_points[0][0][1] = int(self.pro_entry_p1y.get())
@@ -616,7 +615,5 @@ class Events:
         self.pro_entry_p2x.delete(0, tk.END)
         self.pro_entry_p2x.insert(tk.END, val)
         self.real_image.line_points[0][1][0] = val
-        self.show_image()
-
-
-    
+        self.show_image()]
+    """
