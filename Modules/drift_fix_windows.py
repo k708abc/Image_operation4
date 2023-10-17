@@ -327,7 +327,7 @@ def update_original(self, dx, dy):
     self.drift_dx.insert(tk.END, round(v, 2))
     self.drift_dy.delete(0, tk.END)
     self.drift_dy.insert(tk.END, round(w, 2))
-    # 画像のアップデート
+    self.drift_val_change()
 
 
 def close_drift_fix(self):

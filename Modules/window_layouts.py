@@ -123,19 +123,6 @@ class Layouts:
         self.profile_button.grid(
             columnspan=2, rowspan=2, row=0, column=0, sticky=tk.N + tk.S
         )
-        """
-        self.pro_txt_p1.grid(row=0, column=3, **self.padWE)
-        self.pro_txt_p1x.grid(row=0, column=4, **self.padWE)
-        self.pro_entry_p1x.grid(row=0, column=5, **self.padWE)
-        self.pro_txt_p1y.grid(row=0, column=6, **self.padWE)
-        self.pro_entry_p1y.grid(row=0, column=7, **self.padWE)
-        #
-        self.pro_txt_p2.grid(row=1, column=3, **self.padWE)
-        self.pro_txt_p2x.grid(row=1, column=4, **self.padWE)
-        self.pro_entry_p2x.grid(row=1, column=5, **self.padWE)
-        self.pro_txt_p2y.grid(row=1, column=6, **self.padWE)
-        self.pro_entry_p2y.grid(row=1, column=7, **self.padWE)
-        """
 
     def create_layout_record(self):
         self.fol_choice_text_record.grid(row=0, column=0, **self.padWE)

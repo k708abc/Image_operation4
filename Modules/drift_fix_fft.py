@@ -513,6 +513,7 @@ def update_dfft(self):
     self.image_drift_fft.y_size_or = self.fft_drift.y_size
     self.dfft_size_x_FFT["text"] = str(round(self.fft_drift.x_size, 2))
     self.dfft_size_y_FFT["text"] = str(round(self.fft_drift.y_size, 2))
+    self.drift_val_change()
 
 
 def show_image_dfft(self):
@@ -622,10 +623,26 @@ def put_values_dfft(self):
     fft_x, fft_y = self.image_drift_fft.image_mod.shape[:2]
     center_x = fft_x / 2
     center_y = fft_y / 2
-    vec1_x = (int(self.vec1_px_entry.get()) - center_x)/fft_x*self.image_drift_fft.x_current
-    vec1_y = (center_y - int(self.vec1_py_entry.get()))/fft_y*self.image_drift_fft.y_current
-    vec2_x = (int(self.vec2_px_entry.get()) - center_x)/fft_x*self.image_drift_fft.x_current
-    vec2_y = (center_y - int(self.vec2_py_entry.get()))/fft_y*self.image_drift_fft.y_current
+    vec1_x = (
+        (int(self.vec1_px_entry.get()) - center_x)
+        / fft_x
+        * self.image_drift_fft.x_current
+    )
+    vec1_y = (
+        (center_y - int(self.vec1_py_entry.get()))
+        / fft_y
+        * self.image_drift_fft.y_current
+    )
+    vec2_x = (
+        (int(self.vec2_px_entry.get()) - center_x)
+        / fft_x
+        * self.image_drift_fft.x_current
+    )
+    vec2_y = (
+        (center_y - int(self.vec2_py_entry.get()))
+        / fft_y
+        * self.image_drift_fft.y_current
+    )
     #
     r1, theta1 = get_polar(vec1_x, vec1_y)
     r2, theta2 = get_polar(vec2_x, vec2_y)
@@ -696,7 +713,6 @@ def calculate_drift_dfft(self):
     d = self.y2_real
     r = float(self.dfft_set_ratio_entry.get())
     k = math.cos(math.radians(float(self.dfft_set_angle_entry.get())))
-
 
     v = (k * r * (b * c + a * d) - r**2 * a * b - c * d) / (
         r**2 * b**2 - 2 * k * r * b * d + d**2

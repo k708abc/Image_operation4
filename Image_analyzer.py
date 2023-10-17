@@ -15,18 +15,14 @@ class App(Window, Layouts, Events, Functions, P_window, Recording):
 
 
 if __name__ == "__main__":
-    print("Last update: 14 th Oct. 2023 by N. Kawakami")
+    print("Last update: 17 th Oct. 2023 by N. Kawakami")
     application = tk.Tk()
     app = App(application)
     app.run()
     """
     メモ
-    各機能の確認
-    サイズ更新
     FFTでのドリフト更生　正確に
     各機能を個別ファイルにまとめる
-    ドリフト補正を画像に反映
-    回転等での背景コントラスト
     #
     drift FFT
         real像への矢印表示
@@ -34,5 +30,4 @@ if __name__ == "__main__":
         image type がへん
         デフォルトベクトルでエラー
         拡大時のベクトルの更新
-
     """

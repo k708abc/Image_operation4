@@ -24,6 +24,7 @@ from Modules.process_classes import (
     Angle,
 )
 
+
 class P_window:
     def manage_process(self):
         self.manage_bool = True
@@ -434,6 +435,10 @@ class P_window:
         self.comment.place(x=120, y=405)
 
     def delete_all(self):
+        if self.real_shown:
+            self.val_reset(self.processes[-1].name)
+        else:
+            self.val_reset(self.processes_FFT[-1].name)
         self.processes = [self.processes[0]]
         self.processes_FFT = [self.processes_FFT[0]]
         self.create_frame_datalist()
@@ -462,12 +467,16 @@ class P_window:
     def rewrite_process(self):
         for i, vars in enumerate(self.var_list):
             params = [var.get() for var in vars]
-            self.processes[i].rewrite(params)
+            self.processes[i + 1].rewrite(params)
         self.fft_func.method = self.FFT_method_var.get()
         self.fft_func.window_func = self.FFT_window_var.get()
         for i, vars in enumerate(self.var_list_FFT):
             params = [var.get() for var in vars]
-            self.processes_FFT[i].rewrite(params)
+            self.processes_FFT[i + 1].rewrite(params)
+        if self.real_shown:
+            self.val_reset(self.processes[-1].name)
+        else:
+            self.val_reset(self.processes_FFT[-1].name)
 
     def pro_fol_choice_clicked(self):
         abs_pass = pathlib.Path(

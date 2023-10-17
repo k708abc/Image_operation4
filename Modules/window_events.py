@@ -134,11 +134,13 @@ class Events:
     def show_real_image(self):
         self.real_image.image_mod = np.copy(self.processes[-1].run())
         self.real_image.mag_update(self.processes[-1].mag_update())
+        self.real_image.default_contrast()
         self.show_image()
 
     def show_fft_image(self):
         self.fft_image.image_mod = self.processes_FFT[-1].run()
         self.fft_image.mag_update(self.processes_FFT[-1].mag_update())
+        self.fft_image.default_contrast()
         self.show_image()
 
     def smooth_process(self, process_list):
@@ -199,7 +201,7 @@ class Events:
             process_list.append(val)
         return process_list
 
-    def drift_val_change(self, event):
+    def drift_val_change(self, event=None):
         if self.real_shown:
             self.processes = self.drift_process(self.processes)
             self.show_real_image()
@@ -345,11 +347,11 @@ class Events:
 
     def angle_process(self, process_list):
         if process_list[-1].name == "Angle":
-            process_list[-1].angle = float(self.symm_angle_entry.get())
+            process_list[-1].angle = float(self.angle_entry.get())
         else:
             self.val_reset(process_list[-1].name)
             val = Angle()
-            val.angle = float(self.symm_angle_entry.get())
+            val.angle = float(self.angle_entry.get())
             val.image = process_list[-1].run()
             val.prev_mag_x, val.prev_mag_y = process_list[-1].mag_update()
             process_list.append(val)
@@ -364,20 +366,21 @@ class Events:
             self.show_fft_image()
 
     def angle_up(self, event):
-        angle = float(self.symm_angle_entry.get()) + 1
+        angle = float(self.angle_entry.get()) + 1
         self.angle_entry.delete(0, tk.END)
         self.angle_entry.insert(tk.END, angle)
         self.angle_return()
 
     def angle_down(self, event):
-        angle = float(self.symm_angle_entry.get()) - 1
+        angle = float(self.angle_entry.get()) - 1
         self.angle_entry.delete(0, tk.END)
         self.angle_entry.insert(tk.END, angle)
         self.angle_return()
 
     def square_process(self, process_list):
         if process_list[-1].name == "Squarize":
-            process_list[-1].on = self.square_bool.get()
+            if self.square_bool.get() is False:
+                del process_list[-1]
         else:
             self.val_reset(process_list[-1].name)
             val = Square()
@@ -397,7 +400,8 @@ class Events:
 
     def odd_process(self, process_list):
         if process_list[-1].name == "Oddize":
-            process_list[-1].on = self.oddize_bool.get()
+            if self.oddize_bool.get() is False:
+                del process_list[-1]
         else:
             self.val_reset(process_list[-1].name)
             val = Odd()
@@ -417,7 +421,8 @@ class Events:
 
     def ave_process(self, process_list):
         if process_list[-1].name == "Ave. sub.":
-            process_list[-1].on = self.average_bool.get()
+            if self.average_bool.get() is False:
+                del process_list[-1]
         else:
             self.val_reset(process_list[-1].name)
             val = Average()
@@ -437,7 +442,8 @@ class Events:
 
     def mirror_process(self, process_list):
         if process_list[-1].name == "Mirror":
-            process_list[-1].on = self.mirror_bool.get()
+            if self.mirror_bool.get() is False:
+                del process_list[-1]
         else:
             self.val_reset(process_list[-1].name)
             val = Mirror()
@@ -456,8 +462,9 @@ class Events:
             self.show_fft_image()
 
     def igneg_process(self, process_list):
-        if process_list[-1].name == "ignore neg.":
-            process_list[-1].on = self.ignore_neg_bool.get()
+        if process_list[-1].name == "Ignore neg.":
+            if self.ignore_neg_bool.get() is False:
+                del process_list[-1]
         else:
             self.val_reset(process_list[-1].name)
             val = Ignore_neg()
@@ -476,7 +483,9 @@ class Events:
             self.show_fft_image()
 
     def original_size_changed(self, event):
-        self.current_size_update()
+        self.real_image.x_size_or = float(self.original_x.get())
+        self.real_image.y_size_or = float(self.original_y.get())
+        self.run_process()
 
     def setting_fft(self):
         self.current_size_text["text"] = "Current size (nm-1)"
@@ -547,73 +556,3 @@ class Events:
             self.fft_image.profiling_bool = True
             self.profile_button["text"] = "Profiling ON"
         self.show_image()
-
-    """
-    def pro1_return_bind(self, event):
-        self.real_image.line_points[0][0][0] = int(self.pro_entry_p1x.get())
-        self.real_image.line_points[0][0][1] = int(self.pro_entry_p1y.get())
-        self.show_image()
-
-    def pro1_up_bind(self, event):
-        val = int(self.pro_entry_p1y.get()) + 1
-        self.pro_entry_p1y.delete(0, tk.END)
-        self.pro_entry_p1y.insert(tk.END, val)
-        self.real_image.line_points[0][0][1] = val
-        self.show_image()
-
-    def pro1_down_bind(self, event):
-        val = int(self.pro_entry_p1y.get()) - 1
-        self.pro_entry_p1y.delete(0, tk.END)
-        self.pro_entry_p1y.insert(tk.END, val)
-        self.real_image.line_points[0][0][1] = val
-        self.show_image()
-
-
-    def pro1_right_bind(self, event):
-        val = int(self.pro_entry_p1x.get()) + 1
-        self.pro_entry_p1x.delete(0, tk.END)
-        self.pro_entry_p1x.insert(tk.END, val)
-        self.real_image.line_points[0][0][0] = val
-        self.show_image()
-
-    def pro1_left_bind(self, event):
-        val = int(self.pro_entry_p1x.get()) - 1
-        self.pro_entry_p1x.delete(0, tk.END)
-        self.pro_entry_p1x.insert(tk.END, val)
-        self.real_image.line_points[0][0][0] = val
-        self.show_image()
-
-    def pro2_return_bind(self, event):
-        self.real_image.line_points[0][1][0] = int(self.pro_entry_p2x.get())
-        self.real_image.line_points[0][1][1] = int(self.pro_entry_p2y.get())
-        self.show_image()
-
-    def pro2_up_bind(self, event):
-        val = int(self.pro_entry_p2y.get()) + 1
-        self.pro_entry_p2y.delete(0, tk.END)
-        self.pro_entry_p2y.insert(tk.END, val)
-        self.real_image.line_points[0][1][1] = val
-        self.show_image()
-
-    def pro2_down_bind(self, event):
-        val = int(self.pro_entry_p2y.get()) - 1
-        self.pro_entry_p2y.delete(0, tk.END)
-        self.pro_entry_p2y.insert(tk.END, val)
-        self.real_image.line_points[0][1][1] = val
-        self.show_image()
-
-
-    def pro2_right_bind(self, event):
-        val = int(self.pro_entry_p2x.get()) + 1
-        self.pro_entry_p2x.delete(0, tk.END)
-        self.pro_entry_p2x.insert(tk.END, val)
-        self.real_image.line_points[0][1][0] = val
-        self.show_image()
-
-    def pro2_left_bind(self, event):
-        val = int(self.pro_entry_p2x.get()) - 1
-        self.pro_entry_p2x.delete(0, tk.END)
-        self.pro_entry_p2x.insert(tk.END, val)
-        self.real_image.line_points[0][1][0] = val
-        self.show_image()]
-    """

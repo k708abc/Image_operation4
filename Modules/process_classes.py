@@ -45,7 +45,7 @@ class Smoothing:
         return self.prev_mag_x * self.mag_rate_x, self.prev_mag_y * self.mag_rate_y
 
     def rewrite(self, params):
-        self.range = params[0]
+        self.range = float(params[0])
 
     def getval(self, p_name):
         if p_name == "range":
@@ -65,7 +65,7 @@ class Smoothing:
     def read(self, vals):
         for i in range(len(vals)):
             if vals[i] == self.params[0]:
-                self.range = int(float(vals[i + 1]))
+                self.range = float(vals[i + 1])
         if vals[-1] == "True":
             self.switch = True
         elif vals[-1] == "False":
@@ -88,14 +88,17 @@ class Median:
         return [self.prev_mag_x * self.mag_rate_x, self.prev_mag_y * self.mag_rate_y]
 
     def rewrite(self, params):
-        self.range = params[0]
+        self.range = int(float(params[0]))
 
     def getval(self, p_name):
         if p_name == "range":
             return self.range
 
     def run(self):
-        image_mod = ndimage.median_filter(self.image, int(self.range))
+        if int(float(self.range)) <= 0:
+            image_mod = self.image
+        else:
+            image_mod = ndimage.median_filter(self.image, int(float(self.range)))
         return image_mod
 
     def rec(self):
@@ -108,7 +111,7 @@ class Median:
     def read(self, vals):
         for i in range(len(vals)):
             if vals[i] == self.params[0]:
-                self.range = int(vals[i + 1])
+                self.range = int(float(vals[i + 1]))
         if vals[-1] == "True":
             self.switch = True
         elif vals[-1] == "False":
@@ -134,8 +137,8 @@ class Drift:
         return [self.prev_mag_x * self.mag_rate_x, self.prev_mag_y * self.mag_rate_y]
 
     def rewrite(self, params):
-        self.x = params[0]
-        self.y = params[1]
+        self.x = float(params[0])
+        self.y = float(params[1])
 
     def getval(self, p_name):
         if p_name == "x":
@@ -144,6 +147,7 @@ class Drift:
             return self.y
 
     def run(self):
+        min_val = np.min(self.image).tolist()
         ps_y, ps_x = self.image.shape[:2]
         #
         v11 = 1 + self.x / 2 / ps_y / ps_y
@@ -156,7 +160,9 @@ class Drift:
         else:
             x_shift = 0
         mat = np.array([[v11, v12, x_shift], [v21, v22, 0]], dtype=np.float32)
-        affine_img = cv2.warpAffine(self.image, mat, (2 * ps_x, 2 * ps_y))
+        affine_img = cv2.warpAffine(
+            self.image, mat, (2 * ps_x, 2 * ps_y), borderValue=min_val
+        )
         # calculate the edge of the image
         ax = v11 * ps_x
         ay = v21 * ps_x
@@ -183,9 +189,9 @@ class Drift:
     def read(self, vals):
         for i in range(len(vals)):
             if vals[i] == self.params[0]:
-                self.x = int(vals[i + 1])
+                self.x = float(vals[i + 1])
             if vals[i] == self.params[1]:
-                self.y = int(vals[i + 1])
+                self.y = float(vals[i + 1])
         if vals[-1] == "True":
             self.switch = True
         elif vals[-1] == "False":
@@ -211,9 +217,9 @@ class Rescale:
         return [self.prev_mag_x * self.mag_rate_x, self.prev_mag_y * self.mag_rate_y]
 
     def rewrite(self, params):
-        self.all = params[0]
-        self.x = params[1]
-        self.y = params[2]
+        self.all = float(params[0])
+        self.x = float(params[1])
+        self.y = float(params[2])
 
     def getval(self, p_name):
         if p_name == "All":
@@ -225,8 +231,8 @@ class Rescale:
 
     def run(self):
         or_y, or_x = self.image.shape[:2]
-        width_x = int(or_x * self.x * self.all)
-        height_y = int(or_y * self.y * self.all)
+        width_x = int(or_x * float(self.x) * float(self.all))
+        height_y = int(or_y * float(self.y) * float(self.all))
         modified_image = cv2.resize(self.image, (width_x, height_y))
         self.mag_rate_x = self.x
         self.mag_rate_y = self.y
@@ -244,9 +250,9 @@ class Rescale:
             if vals[i] == self.params[0]:
                 self.all = float(vals[i + 1])
             if vals[i] == self.params[1]:
-                self.x = int(vals[i + 1])
+                self.x = float(vals[i + 1])
             if vals[i] == self.params[2]:
-                self.y = int(vals[i + 1])
+                self.y = float(vals[i + 1])
         if vals[-1] == "True":
             self.switch = True
         elif vals[-1] == "False":
@@ -270,7 +276,7 @@ class Cut:
         return [self.prev_mag_x * self.mag_rate_x, self.prev_mag_y * self.mag_rate_y]
 
     def rewrite(self, params):
-        self.ratio = params[0]
+        self.ratio = float(params[0])
 
     def getval(self, p_name):
         if p_name == "ratio":
@@ -394,7 +400,7 @@ class Gamma:
         return [self.prev_mag_x * self.mag_rate_x, self.prev_mag_y * self.mag_rate_y]
 
     def rewrite(self, params):
-        self.val = params[0]
+        self.val = float(params[0])
 
     def getval(self, p_name):
         if p_name == "val":
@@ -452,8 +458,8 @@ class Edge:
 
     def rewrite(self, params):
         self.method = params[0]
-        self.const = params[1]
-        self.mul_or = params[2]
+        self.const = float(params[1])
+        self.mul_or = bool(params[2])
 
     def getval(self, p_name):
         if p_name == "method":
@@ -587,6 +593,7 @@ class Symm:
     def run(self):
         height, width = self.image.shape[:2]
         center = (int(width / 2), int(height / 2))
+        min_val = np.min(self.image).tolist()
         if self.method == "None":
             image_sym = self.image
         elif self.method == "mirror_XY":
@@ -608,36 +615,40 @@ class Symm:
                 affine_60,
                 (width, height),
                 flags=cv2.INTER_CUBIC,
+                borderValue=min_val,
             )
             image3 = cv2.warpAffine(
                 image2,
                 affine_60,
                 (width, height),
                 flags=cv2.INTER_CUBIC,
+                borderValue=min_val,
             )
             image4 = cv2.warpAffine(
                 image3,
                 affine_60,
                 (width, height),
                 flags=cv2.INTER_CUBIC,
+                borderValue=min_val,
             )
             image5 = cv2.warpAffine(
                 image4,
                 affine_60,
                 (width, height),
                 flags=cv2.INTER_CUBIC,
+                borderValue=min_val,
             )
             image6 = cv2.warpAffine(
                 image5,
                 affine_60,
                 (width, height),
                 flags=cv2.INTER_CUBIC,
+                borderValue=min_val,
             )
 
             image_s = cv2.add(self.image / 6, image2 / 6)
             image_p = cv2.add(image3 / 6, image4 / 6)
             image_k = cv2.add(image5 / 6, image6 / 6)
-
             image7 = cv2.add(image_s, image_p)
             image_sym = cv2.add(image7, image_k)
 
@@ -649,12 +660,14 @@ class Symm:
                 affine_60,
                 (width, height),
                 flags=cv2.INTER_CUBIC,
+                borderValue=min_val,
             )
             image3 = cv2.warpAffine(
                 image2,
                 affine_60,
                 (width, height),
                 flags=cv2.INTER_CUBIC,
+                borderValue=min_val,
             )
             image4 = cv2.warpAffine(
                 image3,
@@ -667,12 +680,14 @@ class Symm:
                 affine_60,
                 (width, height),
                 flags=cv2.INTER_CUBIC,
+                borderValue=min_val,
             )
             image6 = cv2.warpAffine(
                 image5,
                 affine_60,
                 (width, height),
                 flags=cv2.INTER_CUBIC,
+                borderValue=min_val,
             )
 
             image_m1 = cv2.flip(self.image, 0)
@@ -681,6 +696,7 @@ class Symm:
                 affine_60,
                 (width, height),
                 flags=cv2.INTER_CUBIC,
+                borderValue=min_val,
             )
             image_m3 = cv2.warpAffine(
                 image_m2,
@@ -693,18 +709,21 @@ class Symm:
                 affine_60,
                 (width, height),
                 flags=cv2.INTER_CUBIC,
+                borderValue=min_val,
             )
             image_m5 = cv2.warpAffine(
                 image_m4,
                 affine_60,
                 (width, height),
                 flags=cv2.INTER_CUBIC,
+                borderValue=min_val,
             )
             image_m6 = cv2.warpAffine(
                 image_m5,
                 affine_60,
                 (width, height),
                 flags=cv2.INTER_CUBIC,
+                borderValue=min_val,
             )
 
             image_s = cv2.add(self.image / 12, image2 / 12)
@@ -757,7 +776,7 @@ class Angle:
         return [self.prev_mag_x * self.mag_rate_x, self.prev_mag_y * self.mag_rate_y]
 
     def rewrite(self, params):
-        self.angle = params[0]
+        self.angle = float(params[0])
 
     def getval(self, p_name):
         if p_name == "angle":
@@ -766,12 +785,14 @@ class Angle:
     def run(self):
         height, width = self.image.shape[:2]
         center = (int(width / 2), int(height / 2))
+        min_val = np.min(self.image).tolist()
         affine_trans = cv2.getRotationMatrix2D(center, self.angle, 1)
         r_image = cv2.warpAffine(
             self.image,
             affine_trans,
             (width, height),
             flags=cv2.INTER_CUBIC,
+            borderValue=min_val,
         )
         return r_image
 
@@ -795,9 +816,8 @@ class Angle:
 class Square:
     name = "Squarize"
     image = None
-    on = None
-    params = ["on/off"]
-    params_type = ["pass"]
+    params = []
+    params_type = []
     cal = None
     switch = True
     prev_mag_x = 1
@@ -809,11 +829,10 @@ class Square:
         return [self.prev_mag_x * self.mag_rate_x, self.prev_mag_y * self.mag_rate_y]
 
     def rewrite(self, params):
-        self.on = params[0]
+        pass
 
     def getval(self, p_name):
-        if p_name == "on/off":
-            return self.on
+        return
 
     def run(self):
         height, width = self.image.shape[:2]
@@ -847,9 +866,11 @@ class Square:
         return txt
 
     def read(self, vals):
+        """
         for i in range(len(vals)):
             if vals[i] == self.params[0]:
                 self.on = bool(vals[i + 1])
+        """
         if vals[-1] == "True":
             self.switch = True
         elif vals[-1] == "False":
@@ -859,10 +880,9 @@ class Square:
 class Odd:
     name = "Oddize"
     image = None
-    on = None
-    params = ["on/off"]
+    params = []
     cal = None
-    params_type = ["pass"]
+    params_type = []
     switch = True
     prev_mag_x = 1
     prev_mag_y = 1
@@ -873,11 +893,10 @@ class Odd:
         return [self.prev_mag_x * self.mag_rate_x, self.prev_mag_y * self.mag_rate_y]
 
     def rewrite(self, params):
-        self.on = params[0]
+        pass
 
     def getval(self, p_name):
-        if p_name == "on/off":
-            return self.on
+        return
 
     def run(self):
         height, width = self.image.shape[:2]
@@ -896,9 +915,6 @@ class Odd:
         return txt
 
     def read(self, vals):
-        for i in range(len(vals)):
-            if vals[i] == self.params[0]:
-                self.on = bool(vals[i + 1])
         if vals[-1] == "True":
             self.switch = True
         elif vals[-1] == "False":
@@ -908,9 +924,8 @@ class Odd:
 class Average:
     name = "Ave. sub."
     image = None
-    on = None
-    params = ["on/off"]
-    params_type = ["pass"]
+    params = []
+    params_type = []
     cal = None
     switch = True
     prev_mag_x = 1
@@ -922,11 +937,10 @@ class Average:
         return [self.prev_mag_x * self.mag_rate_x, self.prev_mag_y * self.mag_rate_y]
 
     def rewrite(self, params):
-        self.on = params[0]
+        pass
 
     def getval(self, p_name):
-        if p_name == "on/off":
-            return self.on
+        return
 
     def run(self):
         for rows in range(len(self.image)):
@@ -943,9 +957,6 @@ class Average:
         return txt
 
     def read(self, vals):
-        for i in range(len(vals)):
-            if vals[i] == self.params[0]:
-                self.on = bool(vals[i + 1])
         if vals[-1] == "True":
             self.switch = True
         elif vals[-1] == "False":
@@ -954,9 +965,8 @@ class Average:
 
 class Mirror:
     name = "Mirror"
-    on = None
-    params = ["on/off"]
-    params_type = ["pass"]
+    params = []
+    params_type = []
     cal = None
     switch = True
     prev_mag_x = 1
@@ -968,11 +978,10 @@ class Mirror:
         return [self.prev_mag_x * self.mag_rate_x, self.prev_mag_y * self.mag_rate_y]
 
     def rewrite(self, params):
-        self.on = params[0]
+        pass
 
     def getval(self, p_name):
-        if p_name == "on/off":
-            return self.on
+        pass
 
     def run(self):
         m_image = cv2.flip(self.image, 1)
@@ -986,9 +995,6 @@ class Mirror:
         return txt
 
     def read(self, vals):
-        for i in range(len(vals)):
-            if vals[i] == self.params[0]:
-                self.on = bool(vals[i + 1])
         if vals[-1] == "True":
             self.switch = True
         elif vals[-1] == "False":
@@ -998,8 +1004,8 @@ class Mirror:
 class Ignore_neg:
     name = "Ignore neg."
     on = None
-    params = ["on/off"]
-    params_type = ["pass"]
+    params = []
+    params_type = []
     cal = None
     switch = True
     prev_mag_x = 1
@@ -1011,11 +1017,10 @@ class Ignore_neg:
         return [self.prev_mag_x * self.mag_rate_x, self.prev_mag_y * self.mag_rate_y]
 
     def rewrite(self, params):
-        self.on = params[0]
+        pass
 
     def getval(self, p_name):
-        if p_name == "on/off":
-            return self.on
+        return
 
     def run(self):
         image_mod = np.where(self.image < 0, 0, self.image)
@@ -1029,9 +1034,6 @@ class Ignore_neg:
         return txt
 
     def read(self, vals):
-        for i in range(len(vals)):
-            if vals[i] == self.params[0]:
-                self.on = bool(vals[i + 1])
         if vals[-1] == "True":
             self.switch = True
         elif vals[-1] == "False":

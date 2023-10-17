@@ -83,7 +83,7 @@ class Functions:
             self.smooth_entry.insert(tk.END, 0)
         elif name == "Median":
             self.median_entry.delete(0, tk.END)
-            self.median_entry.insert(tk.END, 0)
+            self.median_entry.insert(tk.END, 1)
         elif name == "Drift":
             self.drift_dx.delete(0, tk.END)
             self.drift_dx.insert(tk.END, 0)
@@ -153,7 +153,6 @@ class Functions:
         py, px = self.real_image.image_mod.shape[:2]
         self.current_pxx["text"] = "(" + str(px) + " px)"
         self.current_pxy["text"] = "(" + str(py) + " px)"
-        # self.master.update()
 
     def update_size_fft(self):
         self.current_x["text"] = str(round(self.fft_image.x_current, 2))
@@ -175,7 +174,7 @@ class Functions:
                 mag_y *= pro.mag_rate_y
         self.real_image.image_mod = np.copy(image)
         self.real_image.mag_update((mag_x, mag_y))
-
+        self.real_image.default_contrast()
         if self.real_shown is False:
             self.fft_func.image = self.real_image.image_mod
             self.fft_func.size_real_x = self.real_image.x_current
