@@ -15,19 +15,19 @@ class App(Window, Layouts, Events, Functions, P_window, Recording):
 
 
 if __name__ == "__main__":
-    print("Last update: 17 th Oct. 2023 by N. Kawakami")
+    print("Last update: 18 th Oct. 2023 by N. Kawakami")
     application = tk.Tk()
     app = App(application)
     app.run()
     """
     メモ
+    正方形じゃない画像へのFFT確認
     FFTでのドリフト更生　正確に
     各機能を個別ファイルにまとめる
     #
     drift FFT
         real像への矢印表示
         計算結果があってない
-        image type がへん
         デフォルトベクトルでエラー
-        拡大時のベクトルの更新
+        矢印指定　ドラッグで
     """

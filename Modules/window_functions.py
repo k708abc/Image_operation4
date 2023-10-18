@@ -29,7 +29,9 @@ class Functions:
         self.method_fft_table = ["Linear", "Sqrt", "Log"]
         self.window_table = ["None", "hann", "hamming", "blackman"]
         self.real_image.line_points = [[[30, 30], [100, 100]]]
+        self.real_image.line_points_active = [[True, True]]
         self.fft_image.line_points = [[[30, 30], [100, 100]]]
+        self.fft_image.line_points_active = [[True, True]]
         self.real_image.profiling_bool = False
         self.fft_image.profiling_bool = False
         self.real_image.data_type = "Real"

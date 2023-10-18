@@ -93,10 +93,12 @@ class MyImage:
     mouse_y = 0
     line_on = False
     line_method = None
-    line_points = []
+    line_points = np.array([])
+    line_points_active = []
     profiling_bool = False
-    drag1 = False
-    drag2 = False
+    drag = False
+    drag_i = None
+    drag_j = None
 
     @property
     def x_current(self):
@@ -246,40 +248,38 @@ class MyImage:
             y = 0
         if y >= height:
             y = height - 1
+        min_i = None
+        min_j = None
+        min_dis = 100000000000
         if event == cv2.EVENT_LBUTTONDOWN:
-            dis1 = (x - self.line_points[0][0][0]) ** 2 + (
-                y - self.line_points[0][0][1]
-            ) ** 2
-            dis2 = (x - self.line_points[0][1][0]) ** 2 + (
-                y - self.line_points[0][1][1]
-            ) ** 2
-            if dis1 <= dis2 and dis1 < 20:
-                self.drag1 = True
-                self.drag2 = False
+            for i, line in enumerate(self.line_points):
+                for j, each_point in enumerate(line):
+                    if self.line_points_active[i][j]:
+                        dis = (x - each_point[0]) ** 2 + (y - each_point[1]) ** 2
+                    if dis < min_dis:
+                        min_dis = dis
+                        min_i = i
+                        min_j = j
+                    else:
+                        pass
 
-            elif dis2 < dis1 and dis2 < 20:
-                self.drag2 = True
-                self.drag1 = False
+            if min_dis < 20:
+                self.drag_i = min_i
+                self.drag_j = min_j
+                self.drag = True
+            else:
+                self.drag = False
 
         if event == cv2.EVENT_LBUTTONUP:
-            if self.drag1:
-                self.line_points[0][0][0] = x
-                self.line_points[0][0][1] = y
-                self.drag1 = False
-            elif self.drag2:
-                self.line_points[0][1][0] = x
-                self.line_points[0][1][1] = y
-                self.drag2 = False
+            if self.drag:
+                self.line_points[self.drag_i][self.drag_j][0] = x
+                self.line_points[self.drag_i][self.drag_j][1] = y
+                self.drag = False
             self.show_image()
 
-        if self.drag1:
-            self.line_points[0][0][0] = x
-            self.line_points[0][0][1] = y
-            self.draw_line()
-            cv2.imshow(self.image_name, self.image_show)
-        elif self.drag2:
-            self.line_points[0][1][0] = x
-            self.line_points[0][1][1] = y
+        if self.drag:
+            self.line_points[self.drag_i][self.drag_j][0] = x
+            self.line_points[self.drag_i][self.drag_j][1] = y
             self.draw_line()
             cv2.imshow(self.image_name, self.image_show)
 
@@ -398,14 +398,14 @@ class MyImage:
         for i, points in enumerate(self.line_points):
             cv2.arrowedLine(
                 self.image_show,
-                (points[0][0], points[0][1]),
-                (points[1][0], points[1][1]),
+                (int(points[0][0]), int(points[0][1])),
+                (int(points[1][0]), int(points[1][1])),
                 color_line[i],
                 1,
             )
             cv2.drawMarker(
                 self.image_show,
-                (points[0][0], points[0][1]),
+                (int(points[0][0]), int(points[0][1])),
                 color_line[i],
                 markerType=cv2.MARKER_TILTED_CROSS,
                 markerSize=15,

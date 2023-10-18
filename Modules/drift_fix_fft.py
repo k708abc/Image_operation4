@@ -69,7 +69,7 @@ def create_widgets_choice_dfft(self):
         width=40,
     )
     if len(self.image_list.types) > 0:
-        self.cb_imtype_dfft["values"] = self.image_list.types[0]
+        self.cb_imtype_dfft["values"] = self.image_list.types[self.choice.current()]
         self.cb_imtype_dfft.current(self.imtype_choice.current())
     self.imtype_dfft_text = ttk.Label(self.frame_choice_dfft, text="Image type")
     #
@@ -209,35 +209,8 @@ def create_frame_set_vector(self):
 def create_widgets_set_vector(self):
     self.vec1_label = ttk.Label(self.frame_set_vector, text="Vector 1")
     self.vec1_px_label = ttk.Label(self.frame_set_vector, text="px")
-    self.vec1_px_entry = ttk.Entry(self.frame_set_vector, width=7)
-    self.vec1_px_entry.bind(
-        "<Return>", lambda event, arg=self: dfft_1return_bind(event, arg)
-    )
-    self.vec1_px_entry.bind("<Up>", lambda event, arg=self: dfft_1up_bind(event, arg))
-    self.vec1_px_entry.bind(
-        "<Down>", lambda event, arg=self: dfft_1down_bind(event, arg)
-    )
-    self.vec1_px_entry.bind(
-        "<Left>", lambda event, arg=self: dfft_1left_bind(event, arg)
-    )
-    self.vec1_px_entry.bind(
-        "<Right>", lambda event, arg=self: dfft_1right_bind(event, arg)
-    )
+    #
     self.vec1_py_label = ttk.Label(self.frame_set_vector, text="py")
-    self.vec1_py_entry = ttk.Entry(self.frame_set_vector, width=7)
-    self.vec1_py_entry.bind(
-        "<Return>", lambda event, arg=self: dfft_1return_bind(event, arg)
-    )
-    self.vec1_py_entry.bind("<Up>", lambda event, arg=self: dfft_1up_bind(event, arg))
-    self.vec1_py_entry.bind(
-        "<Down>", lambda event, arg=self: dfft_1down_bind(event, arg)
-    )
-    self.vec1_py_entry.bind(
-        "<Left>", lambda event, arg=self: dfft_1left_bind(event, arg)
-    )
-    self.vec1_py_entry.bind(
-        "<Right>", lambda event, arg=self: dfft_1right_bind(event, arg)
-    )
     #
     self.dfft_k1_label = ttk.Label(self.frame_set_vector, text="0 nm-1")
     self.dfft_k1_angle_label = ttk.Label(self.frame_set_vector, text="0 °")
@@ -248,35 +221,6 @@ def create_widgets_set_vector(self):
     #
     self.vec2_label = ttk.Label(self.frame_set_vector, text="Vector 2")
     self.vec2_px_label = ttk.Label(self.frame_set_vector, text="px")
-    self.vec2_px_entry = ttk.Entry(self.frame_set_vector, width=7)
-    self.vec2_px_entry.bind(
-        "<Return>", lambda event, arg=self: dfft_2return_bind(event, arg)
-    )
-    self.vec2_px_entry.bind("<Up>", lambda event, arg=self: dfft_2up_bind(event, arg))
-    self.vec2_px_entry.bind(
-        "<Down>", lambda event, arg=self: dfft_2down_bind(event, arg)
-    )
-    self.vec2_px_entry.bind(
-        "<Left>", lambda event, arg=self: dfft_2left_bind(event, arg)
-    )
-    self.vec2_px_entry.bind(
-        "<Right>", lambda event, arg=self: dfft_2right_bind(event, arg)
-    )
-    self.vec2_py_label = ttk.Label(self.frame_set_vector, text="py")
-    self.vec2_py_entry = ttk.Entry(self.frame_set_vector, width=7)
-    self.vec2_py_entry.bind(
-        "<Return>", lambda event, arg=self: dfft_2return_bind(event, arg)
-    )
-    self.vec2_py_entry.bind("<Up>", lambda event, arg=self: dfft_2up_bind(event, arg))
-    self.vec2_py_entry.bind(
-        "<Down>", lambda event, arg=self: dfft_2down_bind(event, arg)
-    )
-    self.vec2_py_entry.bind(
-        "<Left>", lambda event, arg=self: dfft_2left_bind(event, arg)
-    )
-    self.vec2_py_entry.bind(
-        "<Right>", lambda event, arg=self: dfft_2right_bind(event, arg)
-    )
     #
     self.dfft_k2_label = ttk.Label(self.frame_set_vector, text="0 nm-1")
     self.dfft_k2_angle_label = ttk.Label(self.frame_set_vector, text="0 °")
@@ -518,11 +462,11 @@ def update_dfft(self):
 
 def show_image_dfft(self):
     if self.dfft_FFT:
-        self.rescale_dfft.image = self.image_drift_fft.image_mod
+        self.rescale_dfft.image = self.image_drift_fft.image_or
         self.image_drift_fft.image_mod = self.rescale_dfft.run()
         self.image_drift_fft.show_image()
     else:
-        self.rescale_dfft.image = self.image_drift_real.image_mod
+        self.rescale_dfft.image = self.image_drift_real.image_or
         self.image_drift_real.image_mod = self.rescale_dfft.run()
         self.image_drift_real.show_image()
     put_values_dfft(self)
@@ -576,24 +520,22 @@ def reset_arrow_dfft(self):
     fft_y1 = int(fft_y / 2)
     fft_x2 = int(fft_x / 4 * 3)
     fft_y2 = int(fft_y / 4)
-    self.image_drift_fft.line_points = [
-        [[fft_center_x, fft_center_y], [fft_x1, fft_y1]],
-        [[fft_center_x, fft_center_y], [fft_x2, fft_y2]],
-    ]
-    self.vec1_px_entry.delete(0, tk.END)
-    self.vec1_px_entry.insert(tk.END, fft_x1)
-    self.vec1_py_entry.delete(0, tk.END)
-    self.vec1_py_entry.insert(tk.END, fft_y1)
-    self.vec2_px_entry.delete(0, tk.END)
-    self.vec2_px_entry.insert(tk.END, fft_x2)
-    self.vec2_py_entry.delete(0, tk.END)
-    self.vec2_py_entry.insert(tk.END, fft_y2)
-
+    self.image_drift_fft.line_points = np.array(
+        [
+            [[fft_center_x, fft_center_y], [fft_x1, fft_y1]],
+            [[fft_center_x, fft_center_y], [fft_x2, fft_y2]],
+        ],
+    )
+    self.image_drift_fft.line_points_active([[False, True], [False, True]])
     show_image_dfft(self)
 
 
 def mag_bind(event, self):
     self.rescale_dfft.all = float(self.dfft_mag_entry.get())
+    self.image_drift_fft.line_points = (
+        self.image_drift_fft.line_points * self.rescale_dfft.all / self.prev_mag
+    )
+    self.prev_mag = float(self.dfft_mag_entry.get())
     show_image_dfft(self)
 
 
@@ -788,4 +730,4 @@ def calculate_dfft(self):
     self.drift_dx.insert(tk.END, round(self.v, 2))
     self.drift_dy.delete(0, tk.END)
     self.drift_dy.insert(tk.END, round(self.w, 2))
-    # ドリフト更新の値を像に反映
+    self.drift_val_change()
