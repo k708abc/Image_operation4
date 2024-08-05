@@ -1,4 +1,4 @@
-# Image operaion
+# Image operation
 
 This program is made for orocessing images from Scanning probe microscopy experiments.
 
