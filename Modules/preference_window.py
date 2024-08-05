@@ -1,4 +1,4 @@
-#!python3.11
+#!python3.12
 
 import tkinter as tk
 import tkinter.ttk as ttk
@@ -218,6 +218,7 @@ class Window(ttk.Frame):
         self.drift_button = tk.Button(
             self.frame_drift, text="Calculate", command=self.drift_function, width=10
         )
+        self.drift_button["state"] = tk.DISABLED
 
     def create_frame_rescale(self):
         self.frame_rescale = ttk.Frame()
@@ -553,6 +554,7 @@ class Window(ttk.Frame):
             width=18,
             height=2,
         )
+        self.record_button["state"] = tk.DISABLED
         self.close_button = tk.Button(
             self.frame_buttons,
             text="Close",

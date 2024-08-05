@@ -1,3 +1,5 @@
+#!python3.12
+
 import tkinter.ttk as ttk
 import tkinter as tk
 import cv2
@@ -8,6 +10,7 @@ from Modules.process_classes import Rescale
 
 
 def initial_setting_dfft(self):
+    self.drift_fix_fft_open = True
     self.image_drift_real = MyImage()
     self.image_drift_fft = MyImage()
     self.fft_drift = FFT()
@@ -233,9 +236,9 @@ def create_widgets_set_vector(self):
 def create_layout_set_vector(self):
     self.vec1_label.grid(row=0, column=0, **self.padWE)
     self.vec1_px_label.grid(row=0, column=1, **self.padWE)
-    self.vec1_px_entry.grid(row=0, column=2, **self.padWE)
+    # self.vec1_px_entry.grid(row=0, column=2, **self.padWE)
     self.vec1_py_label.grid(row=0, column=3, **self.padWE)
-    self.vec1_py_entry.grid(row=0, column=4, **self.padWE)
+    # self.vec1_py_entry.grid(row=0, column=4, **self.padWE)
     self.FFT_label_k1.grid(row=1, column=1, **self.padWE)
     self.dfft_k1_label.grid(row=1, column=2, **self.padWE)
     self.dfft_k1_angle_label.grid(row=1, column=3, **self.padWE)
@@ -245,9 +248,9 @@ def create_layout_set_vector(self):
     #
     self.vec2_label.grid(row=3, column=0, **self.padWE)
     self.vec2_px_label.grid(row=3, column=1, **self.padWE)
-    self.vec2_px_entry.grid(row=3, column=2, **self.padWE)
+    # self.vec2_px_entry.grid(row=3, column=2, **self.padWE)
     self.vec2_py_label.grid(row=3, column=3, **self.padWE)
-    self.vec2_py_entry.grid(row=3, column=4, **self.padWE)
+    # self.vec2_py_entry.grid(row=3, column=4, **self.padWE)
     self.FFT_label_k2.grid(row=4, column=1, **self.padWE)
     #
     self.dfft_k2_label.grid(row=4, column=2, **self.padWE)
@@ -509,6 +512,7 @@ def close_dfft(self):
         cv2.destroyWindow("Arrow")
     except:
         pass
+    self.drift_fix_fft_open = False
     self.fft_fix_window.destroy()
 
 

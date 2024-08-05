@@ -1,4 +1,4 @@
-#!python3.11
+#!python3.12
 
 import tkinter as tk
 import numpy as np
@@ -212,10 +212,13 @@ class Events:
     def drift_function(self):
         if self.drift_cb.current() == 0:
             # two images
-            drift_two_images(self)
+            if self.drift_fix_open is False:
+                drift_two_images(self)
         elif self.drift_cb.current() == 1:
             # fft
-            drift_fft(self)
+            if self.drift_fix_fft_open is False:
+                print("This function is under construction")
+                # drift_fft(self)
 
     def rescale_process(self, process_list):
         if process_list[-1].name == "Rescale":
@@ -501,10 +504,10 @@ class Events:
         if self.real_shown:
             self.real_shown = False
             self.fft_image.open_bool = True
-            self.setting_fft()
+            self.val_reset(self.processes[-1].name)
         else:
             self.real_shown = True
-            self.setting_real()
+            self.val_reset(self.processes_FFT[-1].name)
         self.fft_func.method = self.method_fft_cb.get()
         self.fft_func.window_func = self.window_cb.get()
         self.run_process()

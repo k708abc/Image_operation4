@@ -1,6 +1,9 @@
+#!python3.12
+
 import tkinter as tk
 import tkinter.ttk as ttk
-from tkinter import *
+
+# from tkinter import *
 import glob
 import os
 from tkinter import filedialog
@@ -184,7 +187,7 @@ class P_window:
                 )
                 component = None
                 if pro_type == "entry":
-                    var = StringVar()
+                    var = tk.StringVar()
                     component = tk.Entry(
                         self.frame_list, width=5, background=color, textvariable=var
                     )
@@ -495,9 +498,10 @@ class P_window:
         if len(self.process_list) > 0:
             self.choice_process.current(0)
             self.read_process_btn["state"] = tk.NORMAL
+        self.manage_process_window.update()
 
     def read_process_list(self, dir_name):
-        process_list = glob.glob(dir_name + "\*")
+        process_list = glob.glob(dir_name + "\\*")
         process_list = [os.path.basename(pathname) for pathname in process_list]
         process_list2 = [file for file in process_list if "process.txt" in file]
         return process_list2
@@ -524,13 +528,13 @@ class P_window:
                             return False
                     if "FFT_params:" in values:
                         self.fft_func.read(values)
-
                         if values[3] == "True":
                             self.real_shown = False
+                            self.fft_button["text"] = "FFT\r →Real"
+                            self.fft_image.open_bool = True
                         elif values[3] == "False":
                             self.real_shown = True
                             self.fft_button["text"] = "Real\r →FFT"
-                            # self.setting_real()
                     if values[0] == "Smoothing":
                         process = Smoothing()
                     elif values[0] == "Median":
@@ -555,11 +559,11 @@ class P_window:
                         process = Square()
                     elif values[0] == "Oddize":
                         process = Odd()
-                    elif values[0] == "Ave. sub.":
+                    elif values[0] == "Ave._sub.":
                         process = Average()
                     elif values[0] == "Mirror":
                         process = Mirror()
-                    elif values[0] == "Ignore neg.":
+                    elif values[0] == "Ignore_neg.":
                         process = Ignore_neg()
                     if process is not None:
                         process.read(values)
@@ -599,14 +603,13 @@ class P_window:
         self.comment["text"] = "Running... "
         if self.allim_bool.get():
             choise_num = self.imtype_choice.current()
-            for i in range(len(self.image_list)):
+            for i in range(len(self.image_list.images)):
                 self.choice.current(i)
                 self.imtype_choice.current(choise_num)
                 self.image_open_clicked()
                 self.run_all_exe()
         else:
-            if self.im_select:
-                self.run_all_exe()
+            self.run_all_exe()
         self.comment["text"] = "Run all finished"
 
     def update_process_w(self):

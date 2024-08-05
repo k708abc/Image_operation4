@@ -1,5 +1,6 @@
+#!python3.12
+
 import numpy as np
-from numpy import fft, minimum
 from scipy import signal
 
 

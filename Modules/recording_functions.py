@@ -1,3 +1,5 @@
+#!python3.12
+
 import cv2
 import os
 import matplotlib.pyplot as plt
@@ -101,13 +103,20 @@ class Recording:
             f.write("Name_tag:" + "\t" + self.record_plus.get() + "\n\n")
             f.write("Real_params:" + "\n")
             for pro in self.processes:
-                f.write(pro.rec())
+                if pro.name == "Im_open":
+                    pass
+                else:
+                    f.write(pro.rec())
+                    f.write("\n")
             f.write("\n")
-
             if self.fft_func.image is not None:
                 f.write(self.fft_func.rec(self.real_shown))
                 for pro in self.processes_FFT:
-                    f.write(pro.rec())
+                    if pro.name == "Im_open":
+                        pass
+                    else:
+                        f.write(pro.rec())
+                        f.write("\n")
 
     def rec_image(self):
         if self.dirdiv_bool.get():

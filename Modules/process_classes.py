@@ -1,4 +1,4 @@
-#!python3.11
+#!python3.12
 from scipy import ndimage
 import numpy as np
 import cv2
@@ -842,7 +842,7 @@ class Square:
             self.mag_rate_y = 1
         elif width > height:
             center = (int(width / 2), int(height / 2))
-            diff = int(width / 2)
+            diff = int(height / 2)
             image = self.image[
                 center[1] - diff : center[1] + diff, center[0] - diff : center[0] + diff
             ]
@@ -850,7 +850,7 @@ class Square:
             self.mag_rate_y = 2 * diff / height
         else:
             center = (int(width / 2), int(height / 2))
-            diff = int(height / 2)
+            diff = int(width / 2)
             image = self.image[
                 center[1] - diff : center[1] + diff, center[0] - diff : center[0] + diff
             ]
@@ -922,7 +922,7 @@ class Odd:
 
 
 class Average:
-    name = "Ave. sub."
+    name = "Ave._sub."
     image = None
     params = []
     params_type = []
@@ -1002,7 +1002,7 @@ class Mirror:
 
 
 class Ignore_neg:
-    name = "Ignore neg."
+    name = "Ignore_neg."
     on = None
     params = []
     params_type = []

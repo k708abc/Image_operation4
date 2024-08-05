@@ -1,3 +1,5 @@
+#!python3.12
+
 import tkinter.ttk as ttk
 import tkinter as tk
 import cv2
@@ -6,6 +8,7 @@ from Modules.image_class import MyImage
 
 
 def start_setting_drift(self):
+    self.drift_fix_open = True
     self.image_ref1 = MyImage()
     self.image_ref2 = MyImage()
     self.ref1_xreal = 0
@@ -314,10 +317,14 @@ def apply_corr(self):
 
 
 def cal_vw(self, dx, dy):
-    N = self.image_ref1.image_show.shape[0]
-    L = float(self.ref1_size_entry.get())
-    v = -dx / (1 + dx / 2 / N / L + dy / L)
-    w = -dy / (1 + dx / 2 / N / L + dy / L)
+    if self.image_ref1.open_bool:
+        N = self.image_ref1.image_show.shape[0]
+        L = float(self.ref1_size_entry.get())
+        v = -dx / (1 + dx / 2 / N / L + dy / L)
+        w = -dy / (1 + dx / 2 / N / L + dy / L)
+    else:
+        v = 0
+        w = 0
     return v, w
 
 
@@ -335,6 +342,7 @@ def close_drift_fix(self):
         self.image_ref1.des_image()
     if self.image_ref2.open_bool:
         self.image_ref2.des_image()
+    self.drift_fix_open = False
     self.two_image_window.destroy()
 
 

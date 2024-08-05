@@ -1,4 +1,5 @@
-#!python3.11
+#!python3.12
+
 import numpy as np
 import matplotlib.pyplot as plt
 import os
@@ -9,6 +10,9 @@ import glob
 import math
 from skimage.filters import window
 from skimage.measure import profile_line
+import warnings
+
+warnings.simplefilter("ignore", RuntimeWarning)
 
 
 class ImageList:
@@ -18,7 +22,7 @@ class ImageList:
 
     def formlist(self):
         image_list = [
-            os.path.basename(pathname) for pathname in glob.glob(self.dir_name + "\*")
+            os.path.basename(pathname) for pathname in glob.glob(self.dir_name + "\\*")
         ]
         self.images = []
         self.types = []
