@@ -1,4 +1,4 @@
-#!python3.11
+#!python3.12
 
 import tkinter as tk
 from Modules.preference_window import Window
@@ -15,7 +15,7 @@ class App(Window, Layouts, Events, Functions, P_window, Recording):
 
 
 if __name__ == "__main__":
-    print("Last update: 18 th Oct. 2023 by N. Kawakami")
+    print("Last update: 5 th Aug. 2024 by N. Kawakami")
     application = tk.Tk()
     app = App(application)
     app.run()
